@@ -1,0 +1,39 @@
+[package]
+name = "openclaw-ipc"
+description = "IPC message types and nng transport for OpenClaw"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+# Async
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+rkyv = { workspace = true }
+
+# IPC
+nng = { workspace = true }
+
+# Utilities
+rand = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# Internal
+openclaw-core = { path = "../openclaw-core" }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["test-util", "macros"] }
+
+[lints]
+workspace = true

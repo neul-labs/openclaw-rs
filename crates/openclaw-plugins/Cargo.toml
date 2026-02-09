@@ -1,0 +1,46 @@
+[package]
+name = "openclaw-plugins"
+description = "Plugin system and FFI bridge for OpenClaw"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+# Async
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# WASM runtime
+wasmtime = "29"
+
+# Native plugin loading
+libloading = "0.8"
+
+# Internal
+openclaw-core = { path = "../openclaw-core" }
+openclaw-ipc = { path = "../openclaw-ipc" }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util", "macros"] }
+tempfile = "3"
+
+# Native FFI requires unsafe code for libloading
+[lints.rust]
+unsafe_code = "allow"
+missing_docs = "warn"
+
+[lints.clippy]
+all = "warn"
+pedantic = "warn"
+nursery = "warn"

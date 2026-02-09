@@ -1,0 +1,65 @@
+[package]
+name = "openclaw-core"
+description = "Core types, configuration, and storage for OpenClaw"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+# Async
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+json5 = { workspace = true }
+rkyv = { workspace = true }
+
+# Storage (grite pattern)
+sled = { workspace = true }
+blake2 = { workspace = true }
+
+# Crypto & secrets
+aes-gcm = { workspace = true }
+rand = { workspace = true }
+secrecy = { workspace = true }
+zeroize = { workspace = true }
+
+# Time
+chrono = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# Validation
+validator = { workspace = true }
+unicode-normalization = { workspace = true }
+
+# HTTP client (for OAuth refresh)
+reqwest = { workspace = true }
+
+# Utilities
+hex = "0.4"
+dirs = "5"
+
+# Platform-specific
+[target.'cfg(unix)'.dependencies]
+nix = { version = "0.29", features = ["fs"] }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+pretty_assertions = { workspace = true }
+tokio = { workspace = true, features = ["test-util", "macros"] }
+criterion = { workspace = true }
+
+[[bench]]
+name = "core_benchmarks"
+harness = false
+
+[lints]
+workspace = true

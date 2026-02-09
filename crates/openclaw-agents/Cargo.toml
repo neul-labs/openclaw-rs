@@ -1,0 +1,49 @@
+[package]
+name = "openclaw-agents"
+description = "Agent runtime and workflow engine for OpenClaw"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+# Async
+tokio = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# Time
+chrono = { workspace = true }
+
+# Temp files for sandbox
+tempfile = { workspace = true }
+
+# Internal
+openclaw-core = { path = "../openclaw-core" }
+openclaw-providers = { path = "../openclaw-providers" }
+
+# Windows Job Objects for sandbox
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_JobObjects",
+    "Win32_System_Threading",
+] }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["test-util", "macros"] }
+
+[lints]
+workspace = true

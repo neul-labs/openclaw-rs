@@ -1,0 +1,65 @@
+[package]
+name = "openclaw-gateway"
+description = "Gateway server for OpenClaw"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+default = ["ui"]
+ui = ["rust-embed", "mime_guess"]
+
+[dependencies]
+# Async
+tokio = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+
+# HTTP/WebSocket
+axum = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# Time
+chrono = { workspace = true }
+
+# Rate limiting
+governor = { workspace = true }
+
+# Auth
+jsonwebtoken = { workspace = true }
+argon2 = { workspace = true }
+rand = { workspace = true }
+sled = { workspace = true }
+hex = "0.4"
+
+# System
+dirs = "5"
+
+# Static asset embedding (for UI)
+rust-embed = { version = "8", features = ["compression"], optional = true }
+mime_guess = { version = "2", optional = true }
+
+# Internal
+openclaw-core = { path = "../openclaw-core" }
+openclaw-agents = { path = "../openclaw-agents" }
+openclaw-channels = { path = "../openclaw-channels" }
+openclaw-providers = { path = "../openclaw-providers" }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util", "macros"] }
+tempfile = { workspace = true }
+
+[lints]
+workspace = true

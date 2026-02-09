@@ -1,0 +1,56 @@
+[package]
+name = "openclaw-cli"
+description = "Command-line interface for OpenClaw"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "openclaw"
+path = "src/main.rs"
+
+[dependencies]
+# Async
+tokio = { workspace = true }
+
+# CLI
+clap = { workspace = true }
+dialoguer = { workspace = true }
+console = { workspace = true }
+indicatif = { workspace = true }
+
+# System
+dirs = { workspace = true }
+which = { workspace = true }
+
+# Time
+chrono = { workspace = true }
+
+# Random
+rand = { workspace = true }
+
+# HTTP client (for status checks)
+reqwest = { workspace = true }
+
+# JSON5 parsing
+json5 = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# Internal
+openclaw-core = { path = "../openclaw-core" }
+openclaw-gateway = { path = "../openclaw-gateway" }
+openclaw-agents = { path = "../openclaw-agents" }
+
+[lints]
+workspace = true
