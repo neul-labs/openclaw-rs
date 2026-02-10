@@ -1,12 +1,12 @@
 # openclaw-node
 
-> **Node.js bindings for the community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw)**
+> **Node.js bindings for the Rust implementation of OpenClaw by [Neul Labs](https://neullabs.com)**
 
 [![Crates.io](https://img.shields.io/crates/v/openclaw-node.svg)](https://crates.io/crates/openclaw-node)
 [![npm](https://img.shields.io/npm/v/openclaw-node.svg)](https://www.npmjs.com/package/openclaw-node)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
 
-Part of [openclaw-rs](https://github.com/openclaw/openclaw-rs), a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw). This package provides napi-rs bindings exposing the Rust core to Node.js applications.
+Part of [openclaw-rs](https://github.com/neul-labs/openclaw-rs), a Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com). This package provides napi-rs bindings exposing the Rust core to Node.js applications.
 
 ## Features
 
@@ -371,7 +371,7 @@ Error codes:
 # - Node.js 20+
 
 # Clone the repository
-git clone https://github.com/openclaw/openclaw-rs
+git clone https://github.com/neul-labs/openclaw-rs
 cd openclaw-rs/bridge/openclaw-node
 
 # Build with napi

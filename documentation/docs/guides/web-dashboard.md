@@ -1,7 +1,7 @@
 # Web Dashboard
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
 
 The web dashboard provides a browser-based interface for interacting with openclaw-rs. Built with Vue 3 and Pinia, it's embedded directly in the gateway.
 

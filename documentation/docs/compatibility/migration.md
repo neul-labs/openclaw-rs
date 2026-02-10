@@ -1,7 +1,7 @@
 # Migration Guide
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
 
 This guide helps you evaluate and migrate from OpenClaw to openclaw-rs.
 
@@ -305,15 +305,15 @@ Keep your original OpenClaw installation until migration is complete.
 
 ### Resources
 
-- [GitHub Issues](https://github.com/openclaw/openclaw-rs/issues)
+- [GitHub Issues](https://github.com/neul-labs/openclaw-rs/issues)
 - [Compatibility Docs](index.md)
 
 ### Official OpenClaw Support
 
 For OpenClaw-specific questions:
 
-- [OpenClaw GitHub](https://github.com/openclaw/openclaw)
-- [OpenClaw Discord](https://discord.gg/openclaw)
+- [OpenClaw GitHub](https://github.com/neul-labs/openclaw-rs)
+- [OpenClaw Discord](https://neullabs.com)
 
 ---
 

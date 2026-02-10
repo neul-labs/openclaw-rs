@@ -17,8 +17,8 @@ version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT"
-repository = "https://github.com/openclaw/openclaw-rs"
-authors = ["OpenClaw Contributors"]
+repository = "https://github.com/neul-labs/openclaw-rs"
+authors = ["Dipankar Sarkar <me@dipankar.name>"]
 
 [workspace.dependencies]
 # Async runtime

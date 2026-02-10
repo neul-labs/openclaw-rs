@@ -1,7 +1,7 @@
 # Getting Started
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
 
 Welcome to openclaw-rs! This guide will help you get up and running quickly.
 

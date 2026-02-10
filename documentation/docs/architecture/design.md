@@ -1,7 +1,7 @@
 # Design Principles
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
 
 The design of openclaw-rs follows specific principles to ensure reliability, performance, and maintainability.
 

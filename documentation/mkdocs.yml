@@ -1,12 +1,12 @@
 site_name: OpenClaw Rust Core
-site_description: A community Rust implementation of OpenClaw - the open-source AI agent framework
-site_url: https://openclaw.github.io/openclaw-rs/
-repo_url: https://github.com/openclaw/openclaw-rs
-repo_name: openclaw/openclaw-rs
+site_description: A Rust implementation of OpenClaw - the open-source AI agent framework by Neul Labs
+site_url: https://docs.neullabs.com/openclaw-rs/
+repo_url: https://github.com/neul-labs/openclaw-rs
+repo_name: neul-labs/openclaw-rs
 
 copyright: |
-  A community implementation inspired by <a href="https://github.com/openclaw/openclaw">OpenClaw</a>.
-  Not affiliated with the official project. All trademarks belong to their respective owners.
+  Copyright &copy; 2025 <a href="https://neullabs.com">Neul Labs</a>. Licensed under MIT.<br>
+  Inspired by <a href="https://github.com/openclaw/openclaw">OpenClaw</a>.
 
 theme:
   name: material
@@ -26,28 +26,29 @@ theme:
   features:
     - navigation.instant
     - navigation.tracking
-    - navigation.tabs
     - navigation.sections
+    - navigation.expand
     - navigation.top
     - navigation.footer
     - search.suggest
     - search.highlight
     - content.code.copy
     - content.tabs.link
+    - toc.integrate
   icon:
     repo: fontawesome/brands/github
 
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/openclaw/openclaw-rs
-      name: OpenClaw Rust Core (This Project)
+      link: https://github.com/neul-labs/openclaw-rs
+      name: OpenClaw Rust Core on GitHub
     - icon: fontawesome/brands/github
       link: https://github.com/openclaw/openclaw
-      name: OpenClaw (Official Project)
-    - icon: fontawesome/brands/discord
-      link: https://discord.gg/openclaw
-      name: OpenClaw Discord (Official)
+      name: Original OpenClaw Project
+    - icon: fontawesome/solid/globe
+      link: https://neullabs.com
+      name: Neul Labs
   generator: false
 
 extra_css:

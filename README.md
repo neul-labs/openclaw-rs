@@ -1,6 +1,6 @@
 # OpenClaw Rust Core
 
-> **A community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw)**
+> **A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com)**
 
 [![Crates.io](https://img.shields.io/crates/v/openclaw-core.svg)](https://crates.io/crates/openclaw-core)
 [![Documentation](https://docs.rs/openclaw-core/badge.svg)](https://docs.rs/openclaw-core)
@@ -12,21 +12,7 @@
 
 ## What is This?
 
-This is an **unofficial, community-driven Rust implementation** of [OpenClaw](https://github.com/openclaw/openclaw), the popular open-source AI agent framework.
-
-**This is NOT the official OpenClaw project.** For the official project, visit:
-- [OpenClaw (Official)](https://github.com/openclaw/openclaw) - The main TypeScript implementation
-- [OpenClaw Discord](https://discord.gg/openclaw) - Official community chat
-- [OpenClaw Docs](https://docs.openclaw.dev) - Official documentation
-
-### Why This Exists
-
-We love OpenClaw and wanted to explore what a Rust implementation might look like. This project is:
-
-- A **tribute** to the excellent design of the original OpenClaw
-- An **experiment** in bringing Rust's performance and safety guarantees to the AI agent space
-- A **learning project** for understanding AI agent architectures
-- **Fully compatible** with OpenClaw's config format, skills, and plugin ecosystem
+This is a **Rust implementation** of [OpenClaw](https://github.com/openclaw/openclaw), the open-source AI agent framework, developed by [Neul Labs](https://neullabs.com).
 
 ### Why Rust?
 
@@ -101,7 +87,7 @@ We love OpenClaw and wanted to explore what a Rust implementation might look lik
 cargo install openclaw-cli
 
 # From source
-git clone https://github.com/openclaw/openclaw-rs
+git clone https://github.com/neul-labs/openclaw-rs
 cd openclaw-rs
 cargo install --path crates/openclaw-cli
 ```
@@ -178,21 +164,6 @@ let response = provider.complete(request).await?;
 
 ---
 
-## Compatibility with OpenClaw
-
-This implementation aims for compatibility with the official OpenClaw project:
-
-| Feature | Compatibility |
-|---------|---------------|
-| **Config Format** | ✅ Same `~/.openclaw/openclaw.json` (JSON5) |
-| **Skills** | ✅ Markdown + YAML frontmatter format |
-| **Plugins** | ✅ TypeScript plugins via IPC bridge |
-| **Session Storage** | ✅ Compatible event format |
-
-See [docs/INTEROP.md](docs/INTEROP.md) for the full compatibility guide.
-
----
-
 ## Design Principles
 
 | Principle | Implementation |
@@ -207,11 +178,10 @@ See [docs/INTEROP.md](docs/INTEROP.md) for the full compatibility guide.
 
 ## Documentation
 
+- [Full Documentation](https://docs.neullabs.com/openclaw-rs/) - Complete guides and API reference
 - [Architecture](docs/ARCHITECTURE.md) - System design and patterns
 - [Security](docs/SECURITY.md) - Threat model and security measures
 - [Crates](docs/CRATES.md) - Detailed crate documentation
-- [Interop](docs/INTEROP.md) - Compatibility with official OpenClaw
-- [Roadmap](docs/ROADMAP.md) - Implementation progress
 - [Contributing](docs/CONTRIBUTING.md) - Development guide
 
 ---
@@ -222,40 +192,36 @@ We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidel
 
 ---
 
-## Acknowledgments
-
-This project is a tribute to the [OpenClaw](https://github.com/openclaw/openclaw) team and community. We're grateful for:
-
-- The excellent design and architecture of the original project
-- The vibrant community on Discord
-- The open-source spirit that makes projects like this possible
-
-We also build on:
-- The Rust ecosystem for its emphasis on safety and performance
-- Event sourcing patterns from distributed systems research
-- Sandbox techniques from container and browser security
-
----
-
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
+## Acknowledgments
+
+This project is a Rust implementation inspired by and compatible with the original [OpenClaw](https://github.com/openclaw/openclaw) project. We're grateful for:
+
+- The excellent design and architecture of the original OpenClaw project
+- The open-source community that makes projects like this possible
+- The Rust ecosystem for its emphasis on safety and performance
+
+---
+
 ## Legal Notice
 
+- "OpenClaw" refers to the original open-source project at [github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
 - "Claude" and "Anthropic" are trademarks of Anthropic, PBC
 - "GPT" and "OpenAI" are trademarks of OpenAI, Inc
-- "OpenClaw" is the name of the original open-source project we're inspired by
 - All trademarks belong to their respective owners
 
-This is an independent community implementation. Provider integrations use official public APIs.
+This is an independent implementation by Neul Labs. Provider integrations use official public APIs.
 
 ---
 
 ## Links
 
-- [OpenClaw (Official)](https://github.com/openclaw/openclaw) - The original TypeScript project
-- [OpenClaw Discord](https://discord.gg/openclaw) - Official community chat
-- [OpenClaw Docs](https://docs.openclaw.dev) - Official documentation
+- [Original OpenClaw](https://github.com/openclaw/openclaw) - The original TypeScript project
+- [Documentation](https://docs.neullabs.com/openclaw-rs/) - Full documentation
+- [GitHub](https://github.com/neul-labs/openclaw-rs) - Source code
+- [Neul Labs](https://neullabs.com) - Organization

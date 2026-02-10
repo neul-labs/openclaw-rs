@@ -1,7 +1,7 @@
 # Agent Runtime Guide
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
 
 Agents are the core abstraction for AI interactions in openclaw-rs. They manage conversations, tool execution, and provider communication.
 

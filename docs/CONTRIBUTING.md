@@ -16,7 +16,7 @@ Thank you for your interest in contributing to OpenClaw Rust Core!
 
 ```bash
 # Clone the repository
-git clone https://github.com/openclaw/openclaw-rs
+git clone https://github.com/neul-labs/openclaw-rs
 cd openclaw-rs
 
 # Build all crates

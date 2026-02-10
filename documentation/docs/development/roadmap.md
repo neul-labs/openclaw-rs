@@ -1,7 +1,7 @@
 # Roadmap
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
 
 This roadmap outlines planned development for openclaw-rs.
 
@@ -138,7 +138,7 @@ Areas where help is especially welcome:
 - [ ] Test coverage
 - [ ] Code cleanup
 
-See [GitHub Issues](https://github.com/openclaw/openclaw-rs/issues) for current opportunities.
+See [GitHub Issues](https://github.com/neul-labs/openclaw-rs/issues) for current opportunities.
 
 ---
 

@@ -1,7 +1,7 @@
 # Installation
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
 
 ## Requirements
 
@@ -45,7 +45,7 @@ This installs the `openclaw` binary to `~/.cargo/bin/`.
 
 ```bash
 # Clone the repository
-git clone https://github.com/openclaw/openclaw-rs
+git clone https://github.com/neul-labs/openclaw-rs
 cd openclaw-rs
 
 # Build in release mode

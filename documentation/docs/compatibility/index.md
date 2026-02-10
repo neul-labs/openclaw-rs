@@ -1,10 +1,10 @@
 # OpenClaw Compatibility
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
     We strive for maximum compatibility with the official project.
 
-openclaw-rs is designed to be compatible with the official [OpenClaw](https://github.com/openclaw/openclaw) project.
+openclaw-rs is designed to be compatible with the original [OpenClaw](https://github.com/openclaw/openclaw) project.
 
 ---
 
@@ -25,15 +25,15 @@ openclaw-rs is designed to be compatible with the official [OpenClaw](https://gi
 
 ---
 
-## Official OpenClaw Resources
+## Original OpenClaw Resources
 
 Before diving into compatibility details, here are the official resources:
 
 | Resource | Link |
 |----------|------|
-| GitHub | [github.com/openclaw/openclaw](https://github.com/openclaw/openclaw) |
-| Discord | [discord.gg/openclaw](https://discord.gg/openclaw) |
-| Documentation | [docs.openclaw.dev](https://docs.openclaw.dev) |
+| GitHub | [github.com/neul-labs/openclaw-rs](https://github.com/neul-labs/openclaw-rs) |
+| Discord | [neullabs.com](https://neullabs.com) |
+| Documentation | [docs.neullabs.com/openclaw-rs](https://docs.neullabs.com/openclaw-rs) |
 
 ---
 
@@ -90,7 +90,7 @@ See [Migration Guide](migration.md) for detailed steps.
 
 Found a compatibility issue? Help us fix it:
 
-1. Check if it's a [known issue](https://github.com/openclaw/openclaw-rs/issues)
+1. Check if it's a [known issue](https://github.com/neul-labs/openclaw-rs/issues)
 2. Open an issue with reproduction steps
 3. Reference the official OpenClaw behavior
 4. Submit a PR if you can fix it

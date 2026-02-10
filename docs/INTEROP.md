@@ -274,6 +274,6 @@ The Rust core aims for zero breaking changes, but some differences exist:
 
 ## Resources
 
-- [OpenClaw TypeScript](https://github.com/openclaw/openclaw)
-- [Plugin SDK](https://github.com/openclaw/openclaw/tree/main/packages/plugin-sdk)
+- [OpenClaw TypeScript](https://github.com/neul-labs/openclaw-rs)
+- [Plugin SDK](https://github.com/neul-labs/openclaw-rs/tree/main/packages/plugin-sdk)
 - [napi-rs](https://napi.rs/)

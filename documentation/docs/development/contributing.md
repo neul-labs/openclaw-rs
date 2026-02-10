@@ -1,7 +1,7 @@
 # Contributing
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
 
 Thank you for your interest in contributing to openclaw-rs!
 
@@ -248,7 +248,7 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 ## Questions?
 
-- Open a [GitHub Discussion](https://github.com/openclaw/openclaw-rs/discussions)
+- Open a [GitHub Discussion](https://github.com/neul-labs/openclaw-rs/discussions)
 - Check existing issues
 - Read the documentation
 

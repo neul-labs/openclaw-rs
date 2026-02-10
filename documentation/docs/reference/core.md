@@ -1,7 +1,7 @@
 # openclaw-core API
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
 
 Core types, authentication, and configuration for openclaw-rs.
 

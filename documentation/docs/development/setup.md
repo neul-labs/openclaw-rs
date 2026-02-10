@@ -1,7 +1,7 @@
 # Development Setup
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
 
 Set up your development environment for openclaw-rs.
 
@@ -63,7 +63,7 @@ npm --version
 ### Clone Repository
 
 ```bash
-git clone https://github.com/openclaw/openclaw-rs
+git clone https://github.com/neul-labs/openclaw-rs
 cd openclaw-rs
 ```
 

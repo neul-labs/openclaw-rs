@@ -1,7 +1,7 @@
 # openclaw-node API
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
 
 Node.js bindings for openclaw-rs core functionality.
 

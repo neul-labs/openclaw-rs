@@ -97,7 +97,7 @@ pub fn risk_acknowledgement() -> Result<bool, dialoguer::Error> {
     println!();
     println!(
         "For more information, see: {}",
-        style("https://docs.openclaw.ai/security")
+        style("https://docs.neullabs.com/openclaw-rs/security")
             .cyan()
             .underlined()
     );

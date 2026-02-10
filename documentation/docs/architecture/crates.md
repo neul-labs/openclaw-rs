@@ -1,7 +1,7 @@
 # Crate Structure
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
 
 openclaw-rs is organized as a Cargo workspace with multiple crates.
 

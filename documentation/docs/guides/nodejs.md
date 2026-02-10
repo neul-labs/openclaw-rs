@@ -1,7 +1,7 @@
 # Node.js Bindings
 
 !!! info "Community Implementation"
-    This is a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw).
+    A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com).
 
 The `openclaw-node` package provides native Node.js bindings to the Rust core, offering high performance with a JavaScript-friendly API.
 

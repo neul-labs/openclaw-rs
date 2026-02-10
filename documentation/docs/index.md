@@ -1,21 +1,12 @@
 # OpenClaw Rust Core
 
-> **A community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw)**
-
-!!! info "Community Implementation"
-    This is an **unofficial, community-driven** Rust implementation of OpenClaw.
-
-    **For the official project, please visit:**
-
-    - [:fontawesome-brands-github: OpenClaw on GitHub](https://github.com/openclaw/openclaw) - The official TypeScript implementation
-    - [:fontawesome-brands-discord: OpenClaw Discord](https://discord.gg/openclaw) - Official community chat
-    - [:material-book: OpenClaw Docs](https://docs.openclaw.dev) - Official documentation
+> **A Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw) by [Neul Labs](https://neullabs.com)**
 
 ---
 
 ## What is This?
 
-**openclaw-rs** is a tribute to the excellent [OpenClaw](https://github.com/openclaw/openclaw) project, reimplemented in Rust. We love OpenClaw and wanted to explore what a high-performance Rust implementation might look like.
+**openclaw-rs** is a Rust implementation of the [OpenClaw](https://github.com/openclaw/openclaw) AI agent framework. This project is developed by [Neul Labs](https://neullabs.com) and aims to provide a high-performance, memory-safe alternative.
 
 This project provides:
 
@@ -60,7 +51,7 @@ openclaw gateway run
 
 ## Compatibility
 
-This implementation aims for compatibility with the official OpenClaw project:
+This implementation aims for compatibility with the original [OpenClaw](https://github.com/openclaw/openclaw) project:
 
 | Feature | Status |
 |---------|--------|
@@ -94,10 +85,18 @@ openclaw-rs/
 
 ## Acknowledgments
 
-This project is a tribute to the [OpenClaw](https://github.com/openclaw/openclaw) team and community. We're grateful for the excellent design and architecture of the original project.
+This project is inspired by and aims to be compatible with the original [OpenClaw](https://github.com/openclaw/openclaw) project. We're grateful for the excellent design and architecture of the original.
+
+---
+
+## Links
+
+- [:fontawesome-brands-github: Original OpenClaw](https://github.com/openclaw/openclaw) - The original TypeScript project
+- [:fontawesome-brands-github: openclaw-rs](https://github.com/neul-labs/openclaw-rs) - This Rust implementation
+- [:material-web: Neul Labs](https://neullabs.com) - Organization
 
 ---
 
 <small>
-**Legal Notice:** "Claude" and "Anthropic" are trademarks of Anthropic, PBC. "GPT" and "OpenAI" are trademarks of OpenAI, Inc. "OpenClaw" refers to the original open-source project we're inspired by. All trademarks belong to their respective owners. This is an independent community implementation using official public APIs.
+**Legal Notice:** "OpenClaw" refers to the original open-source project at [github.com/openclaw/openclaw](https://github.com/openclaw/openclaw). "Claude" and "Anthropic" are trademarks of Anthropic, PBC. "GPT" and "OpenAI" are trademarks of OpenAI, Inc. All trademarks belong to their respective owners. This is an independent implementation by Neul Labs using official public APIs.
 </small>
