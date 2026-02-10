@@ -4,8 +4,8 @@ use std::path::Path;
 use std::sync::Arc;
 
 use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
+    password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -359,7 +359,8 @@ impl UserStore {
         let mut users = Vec::new();
 
         for result in self.tree.iter() {
-            let (key, value) = result.map_err(|e| AuthError::Storage(format!("Iter error: {e}")))?;
+            let (key, value) =
+                result.map_err(|e| AuthError::Storage(format!("Iter error: {e}")))?;
 
             // Skip index entries
             if key.starts_with(b"idx:") {
@@ -423,11 +424,22 @@ fn uuid_v4() -> String {
 
     format!(
         "{:02x}{:02x}{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}",
-        bytes[0], bytes[1], bytes[2], bytes[3],
-        bytes[4], bytes[5],
-        bytes[6], bytes[7],
-        bytes[8], bytes[9],
-        bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15]
+        bytes[0],
+        bytes[1],
+        bytes[2],
+        bytes[3],
+        bytes[4],
+        bytes[5],
+        bytes[6],
+        bytes[7],
+        bytes[8],
+        bytes[9],
+        bytes[10],
+        bytes[11],
+        bytes[12],
+        bytes[13],
+        bytes[14],
+        bytes[15]
     )
 }
 

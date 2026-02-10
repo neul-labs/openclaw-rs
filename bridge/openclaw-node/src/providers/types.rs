@@ -4,8 +4,8 @@ use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 
 use openclaw_providers::{
-    CompletionRequest, CompletionResponse, ContentBlock, Message, MessageContent,
-    Role, StopReason, Tool as ProviderTool,
+    CompletionRequest, CompletionResponse, ContentBlock, Message, MessageContent, Role, StopReason,
+    Tool as ProviderTool,
 };
 
 /// A message in a conversation.
@@ -161,7 +161,9 @@ pub fn convert_request(req: JsCompletionRequest) -> CompletionRequest {
         max_tokens: req.max_tokens,
         temperature: req.temperature.map(|t| t as f32).unwrap_or(1.0),
         stop: req.stop,
-        tools: req.tools.map(|tools| tools.iter().map(convert_js_tool).collect()),
+        tools: req
+            .tools
+            .map(|tools| tools.iter().map(convert_js_tool).collect()),
     }
 }
 

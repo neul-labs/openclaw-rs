@@ -3,12 +3,12 @@
 use std::time::Duration;
 
 use chrono::{DateTime, Utc};
-use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, TokenData, Validation};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, TokenData, Validation, decode, encode};
 use rand::RngCore;
 use serde::{Deserialize, Serialize};
 
-use super::users::UserRole;
 use super::AuthError;
+use super::users::UserRole;
 
 /// JWT claims.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -244,8 +244,12 @@ impl JwtManager {
         // Create new tokens with the same family ID (for rotation tracking)
         let (access_token, expires_at) =
             self.create_access_token(&claims.sub, &claims.username, claims.role)?;
-        let (new_refresh_token, refresh_expires_at) =
-            self.create_refresh_token(&claims.sub, &claims.username, claims.role, claims.family_id)?;
+        let (new_refresh_token, refresh_expires_at) = self.create_refresh_token(
+            &claims.sub,
+            &claims.username,
+            claims.role,
+            claims.family_id,
+        )?;
 
         Ok(TokenPair {
             access_token,
@@ -260,7 +264,9 @@ impl JwtManager {
     ///
     /// Expects format: "Bearer <token>"
     pub fn extract_from_header(header: &str) -> Option<&str> {
-        header.strip_prefix("Bearer ").or_else(|| header.strip_prefix("bearer "))
+        header
+            .strip_prefix("Bearer ")
+            .or_else(|| header.strip_prefix("bearer "))
     }
 }
 
@@ -350,7 +356,9 @@ mod tests {
         let new_pair = manager.refresh_tokens(&pair.refresh_token).unwrap();
 
         // Verify new tokens are valid
-        let access_claims = manager.validate_access_token(&new_pair.access_token).unwrap();
+        let access_claims = manager
+            .validate_access_token(&new_pair.access_token)
+            .unwrap();
         assert_eq!(access_claims.sub, "user_123");
         assert_eq!(access_claims.username, "admin");
         assert_eq!(access_claims.role, UserRole::Admin);
@@ -360,7 +368,11 @@ mod tests {
 
         // The new refresh token should also be valid for refreshing
         let third_pair = manager.refresh_tokens(&new_pair.refresh_token).unwrap();
-        assert!(manager.validate_access_token(&third_pair.access_token).is_ok());
+        assert!(
+            manager
+                .validate_access_token(&third_pair.access_token)
+                .is_ok()
+        );
     }
 
     #[test]

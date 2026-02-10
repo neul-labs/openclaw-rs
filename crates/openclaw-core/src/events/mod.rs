@@ -226,7 +226,12 @@ pub struct SessionProjection {
 impl SessionProjection {
     /// Create a new empty projection.
     #[must_use]
-    pub fn new(session_key: SessionKey, agent_id: String, channel: ChannelId, peer_id: String) -> Self {
+    pub fn new(
+        session_key: SessionKey,
+        agent_id: String,
+        channel: ChannelId,
+        peer_id: String,
+    ) -> Self {
         Self {
             session_key,
             agent_id,
@@ -252,7 +257,8 @@ impl SessionProjection {
                 self.message_count += 1;
             }
             SessionEventKind::MessageSent { content, .. } => {
-                self.messages.push(SessionMessage::Outbound(content.clone()));
+                self.messages
+                    .push(SessionMessage::Outbound(content.clone()));
             }
             SessionEventKind::ToolCalled { tool_name, .. } => {
                 // Tool calls are recorded but don't add to message history yet
@@ -268,7 +274,8 @@ impl SessionProjection {
                 });
             }
             SessionEventKind::AgentResponse { content, .. } => {
-                self.messages.push(SessionMessage::Outbound(content.clone()));
+                self.messages
+                    .push(SessionMessage::Outbound(content.clone()));
             }
             SessionEventKind::SessionEnded { .. } => {
                 self.state = SessionState::Ended;
@@ -354,7 +361,10 @@ impl EventStore {
     /// # Errors
     ///
     /// Returns error if storage read fails.
-    pub fn get_events(&self, session_key: &SessionKey) -> Result<Vec<SessionEvent>, EventStoreError> {
+    pub fn get_events(
+        &self,
+        session_key: &SessionKey,
+    ) -> Result<Vec<SessionEvent>, EventStoreError> {
         let prefix = format!("{session_key}:");
         let mut events = Vec::new();
 
@@ -388,7 +398,10 @@ impl EventStore {
     /// # Errors
     ///
     /// Returns error if storage read fails or projection not found.
-    pub fn get_projection(&self, session_key: &SessionKey) -> Result<SessionProjection, EventStoreError> {
+    pub fn get_projection(
+        &self,
+        session_key: &SessionKey,
+    ) -> Result<SessionProjection, EventStoreError> {
         let key = session_key.as_ref().as_bytes();
 
         match self.sessions_tree.get(key)? {

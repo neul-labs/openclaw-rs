@@ -132,7 +132,7 @@ impl Channel for SignalChannel {
             videos: true,
             voice: true,
             files: true,
-            threads: false, // Signal doesn't have threads
+            threads: false,  // Signal doesn't have threads
             reactions: true, // Signal has reactions
             editing: false,  // Signal doesn't support editing
             deletion: true,  // Signal supports delete for everyone

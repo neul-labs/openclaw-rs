@@ -1,6 +1,6 @@
 //! Formatted output utilities.
 
-use console::{style, Style, Term};
+use console::{Style, Term, style};
 
 /// Print a success message with checkmark.
 pub fn success(msg: &str) {
@@ -29,11 +29,7 @@ pub fn header(msg: &str) {
 
 /// Print a step in a process.
 pub fn step(num: usize, total: usize, msg: &str) {
-    println!(
-        "{} {}",
-        style(format!("[{}/{}]", num, total)).dim(),
-        msg
-    );
+    println!("{} {}", style(format!("[{}/{}]", num, total)).dim(), msg);
 }
 
 /// Health check result display.

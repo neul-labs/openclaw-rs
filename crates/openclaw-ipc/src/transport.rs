@@ -1,7 +1,7 @@
 //! nng transport layer with async support.
 
-use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 use thiserror::Error;
 use tokio::sync::RwLock;
@@ -451,11 +451,7 @@ mod tests {
     #[test]
     fn test_transport_pool_creation() {
         // Can't actually connect without a server, but test construction
-        let pool = TransportPool::new(
-            "tcp://127.0.0.1:19999",
-            Duration::from_millis(100),
-            4,
-        );
+        let pool = TransportPool::new("tcp://127.0.0.1:19999", Duration::from_millis(100), 4);
         // Will fail to connect, which is expected
         assert!(pool.is_err());
     }

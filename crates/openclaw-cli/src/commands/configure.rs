@@ -247,7 +247,9 @@ async fn configure_channels() -> Result<()> {
         }
         2 => {
             ui::info("Slack Configuration");
-            ui::warning("Slack requires OAuth setup. Visit https://api.slack.com/apps to create an app.");
+            ui::warning(
+                "Slack requires OAuth setup. Visit https://api.slack.com/apps to create an app.",
+            );
         }
         3 => {
             ui::info("Signal Configuration");
@@ -267,8 +269,10 @@ async fn configure_workspace() -> Result<()> {
         .map(|h| h.join(".openclaw").join("workspace"))
         .unwrap_or_else(|| PathBuf::from(".openclaw/workspace"));
 
-    let workspace_str =
-        prompts::input_with_default("Workspace directory", &default_workspace.display().to_string())?;
+    let workspace_str = prompts::input_with_default(
+        "Workspace directory",
+        &default_workspace.display().to_string(),
+    )?;
 
     let workspace = PathBuf::from(&workspace_str);
     std::fs::create_dir_all(&workspace)?;

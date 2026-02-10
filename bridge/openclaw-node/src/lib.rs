@@ -59,9 +59,8 @@ pub use validation::{build_session_key, validate_message, validate_path};
 // AI Providers
 pub mod providers;
 pub use providers::{
-    AnthropicProvider, OpenAIProvider,
-    JsCompletionRequest, JsCompletionResponse, JsMessage, JsStreamChunk,
-    JsTool, JsToolCall, JsTokenUsage,
+    AnthropicProvider, JsCompletionRequest, JsCompletionResponse, JsMessage, JsStreamChunk,
+    JsTokenUsage, JsTool, JsToolCall, OpenAIProvider,
 };
 
 // Authentication

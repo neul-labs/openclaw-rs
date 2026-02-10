@@ -5,10 +5,12 @@ use napi_derive::napi;
 use std::sync::Arc;
 
 use openclaw_core::secrets::ApiKey;
-use openclaw_providers::{OpenAIProvider as RustOpenAIProvider, Provider};
 use openclaw_providers::traits::ChunkType;
+use openclaw_providers::{OpenAIProvider as RustOpenAIProvider, Provider};
 
-use super::types::{convert_request, convert_response, JsCompletionRequest, JsCompletionResponse, JsStreamChunk};
+use super::types::{
+    JsCompletionRequest, JsCompletionResponse, JsStreamChunk, convert_request, convert_response,
+};
 use crate::error::OpenClawError;
 
 /// OpenAI GPT API provider.
@@ -112,7 +114,9 @@ impl OpenAIProvider {
         callback: JsFunction,
     ) -> Result<()> {
         use futures::StreamExt;
-        use napi::threadsafe_function::{ErrorStrategy, ThreadsafeFunction, ThreadsafeFunctionCallMode};
+        use napi::threadsafe_function::{
+            ErrorStrategy, ThreadsafeFunction, ThreadsafeFunctionCallMode,
+        };
 
         // Create threadsafe callback
         let tsfn: ThreadsafeFunction<JsStreamChunk, ErrorStrategy::CalleeHandled> =
@@ -128,13 +132,20 @@ impl OpenAIProvider {
                     while let Some(chunk_result) = stream.next().await {
                         match chunk_result {
                             Ok(chunk) => {
-                                let js_chunk = convert_stream_chunk(&chunk.chunk_type, chunk.delta.as_deref(), chunk.index);
-                                let _ = tsfn.call(Ok(js_chunk), ThreadsafeFunctionCallMode::NonBlocking);
+                                let js_chunk = convert_stream_chunk(
+                                    &chunk.chunk_type,
+                                    chunk.delta.as_deref(),
+                                    chunk.index,
+                                );
+                                let _ = tsfn
+                                    .call(Ok(js_chunk), ThreadsafeFunctionCallMode::NonBlocking);
                             }
                             Err(e) => {
                                 let err = OpenClawError::from_provider_error(e);
                                 let _ = tsfn.call(
-                                    Err(napi::Error::from_reason(serde_json::to_string(&err).unwrap_or_default())),
+                                    Err(napi::Error::from_reason(
+                                        serde_json::to_string(&err).unwrap_or_default(),
+                                    )),
                                     ThreadsafeFunctionCallMode::NonBlocking,
                                 );
                                 break;
@@ -145,7 +156,9 @@ impl OpenAIProvider {
                 Err(e) => {
                     let err = OpenClawError::from_provider_error(e);
                     let _ = tsfn.call(
-                        Err(napi::Error::from_reason(serde_json::to_string(&err).unwrap_or_default())),
+                        Err(napi::Error::from_reason(
+                            serde_json::to_string(&err).unwrap_or_default(),
+                        )),
                         ThreadsafeFunctionCallMode::NonBlocking,
                     );
                 }
@@ -157,7 +170,11 @@ impl OpenAIProvider {
 }
 
 /// Convert ChunkType to JsStreamChunk.
-fn convert_stream_chunk(chunk_type: &ChunkType, delta: Option<&str>, index: Option<usize>) -> JsStreamChunk {
+fn convert_stream_chunk(
+    chunk_type: &ChunkType,
+    delta: Option<&str>,
+    index: Option<usize>,
+) -> JsStreamChunk {
     let (type_str, stop_reason) = match chunk_type {
         ChunkType::MessageStart => ("message_start", None),
         ChunkType::ContentBlockStart => ("content_block_start", None),

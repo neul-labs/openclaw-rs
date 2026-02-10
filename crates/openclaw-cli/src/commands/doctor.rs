@@ -150,7 +150,11 @@ pub async fn run_doctor(args: DoctorArgs) -> Result<()> {
         // Check for multiple gateway instances
         match check_multiple_gateways() {
             CheckResult::Ok => {
-                ui::health_check("Gateway instances", HealthStatus::Ok, Some("single instance"));
+                ui::health_check(
+                    "Gateway instances",
+                    HealthStatus::Ok,
+                    Some("single instance"),
+                );
             }
             CheckResult::Warning(msg) => {
                 ui::health_check("Gateway instances", HealthStatus::Warning, Some(&msg));
@@ -252,7 +256,9 @@ fn check_sandbox() -> CheckResult {
     } else {
         #[cfg(target_os = "linux")]
         {
-            CheckResult::Warning("bubblewrap (bwrap) not found - install for sandboxing".to_string())
+            CheckResult::Warning(
+                "bubblewrap (bwrap) not found - install for sandboxing".to_string(),
+            )
         }
 
         #[cfg(target_os = "macos")]
@@ -291,7 +297,9 @@ async fn check_gateway() -> CheckResult {
                 Ok(resp) => {
                     CheckResult::Warning(format!("Gateway returned status {}", resp.status()))
                 }
-                Err(_) => CheckResult::Warning("Gateway running but health check failed".to_string()),
+                Err(_) => {
+                    CheckResult::Warning("Gateway running but health check failed".to_string())
+                }
             }
         }
         Err(_) => CheckResult::Warning("Gateway not running".to_string()),

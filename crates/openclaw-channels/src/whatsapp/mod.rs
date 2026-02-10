@@ -269,7 +269,10 @@ impl ChannelOutbound for WhatsAppChannel {
                 video,
                 audio,
                 document,
-                context: ctx.reply_to.clone().map(|id| MessageContext { message_id: id }),
+                context: ctx
+                    .reply_to
+                    .clone()
+                    .map(|id| MessageContext { message_id: id }),
             };
 
             let result: SendMessageResponse = self
@@ -327,9 +330,7 @@ impl ChannelInbound for WhatsAppChannel {
             .and_then(|m| m.into_iter().next())
             .ok_or_else(|| ChannelError::Config("No message in value".to_string()))?;
 
-        let _contact = value
-            .contacts
-            .and_then(|c| c.into_iter().next());
+        let _contact = value.contacts.and_then(|c| c.into_iter().next());
 
         // Determine peer type (WhatsApp is always DM for Cloud API)
         let peer_type = PeerType::Dm;
@@ -650,19 +651,13 @@ mod tests {
 
     #[test]
     fn test_channel_id() {
-        let channel = WhatsAppChannel::new(
-            ApiKey::new("test".to_string()),
-            "123456789",
-        );
+        let channel = WhatsAppChannel::new(ApiKey::new("test".to_string()), "123456789");
         assert_eq!(channel.id(), "whatsapp");
     }
 
     #[test]
     fn test_capabilities() {
-        let channel = WhatsAppChannel::new(
-            ApiKey::new("test".to_string()),
-            "123456789",
-        );
+        let channel = WhatsAppChannel::new(ApiKey::new("test".to_string()), "123456789");
         let caps = channel.capabilities();
         assert!(caps.text);
         assert!(caps.images);
@@ -673,10 +668,7 @@ mod tests {
 
     #[test]
     fn test_text_limit() {
-        let channel = WhatsAppChannel::new(
-            ApiKey::new("test".to_string()),
-            "123456789",
-        );
+        let channel = WhatsAppChannel::new(ApiKey::new("test".to_string()), "123456789");
         assert_eq!(channel.text_chunk_limit(), 4096);
     }
 }

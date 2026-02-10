@@ -251,7 +251,11 @@ impl ChannelOutbound for DiscordChannel {
                 channel_id: None,
                 guild_id: None,
             }),
-            embeds: if embeds.is_empty() { None } else { Some(embeds) },
+            embeds: if embeds.is_empty() {
+                None
+            } else {
+                Some(embeds)
+            },
             allowed_mentions: Some(AllowedMentions::default()),
         };
 
@@ -312,11 +316,23 @@ impl ChannelInbound for DiscordChannel {
             .unwrap_or_default()
             .into_iter()
             .map(|a| {
-                let kind = if a.content_type.as_ref().map_or(false, |ct| ct.starts_with("image/")) {
+                let kind = if a
+                    .content_type
+                    .as_ref()
+                    .map_or(false, |ct| ct.starts_with("image/"))
+                {
                     AttachmentKind::Image
-                } else if a.content_type.as_ref().map_or(false, |ct| ct.starts_with("video/")) {
+                } else if a
+                    .content_type
+                    .as_ref()
+                    .map_or(false, |ct| ct.starts_with("video/"))
+                {
                     AttachmentKind::Video
-                } else if a.content_type.as_ref().map_or(false, |ct| ct.starts_with("audio/")) {
+                } else if a
+                    .content_type
+                    .as_ref()
+                    .map_or(false, |ct| ct.starts_with("audio/"))
+                {
                     AttachmentKind::Audio
                 } else {
                     AttachmentKind::Document

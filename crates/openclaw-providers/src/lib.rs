@@ -5,16 +5,15 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 
-pub mod traits;
 mod anthropic;
 mod openai;
+pub mod traits;
 mod usage;
 
-pub use traits::{
-    Provider, CompletionRequest, CompletionResponse, StreamingChunk,
-    Message, MessageContent, ContentBlock, Role, Tool, ProviderError,
-    StopReason, ImageSource,
-};
 pub use anthropic::AnthropicProvider;
 pub use openai::OpenAIProvider;
+pub use traits::{
+    CompletionRequest, CompletionResponse, ContentBlock, ImageSource, Message, MessageContent,
+    Provider, ProviderError, Role, StopReason, StreamingChunk, Tool,
+};
 pub use usage::UsageTracker;

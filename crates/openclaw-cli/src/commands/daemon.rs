@@ -276,7 +276,10 @@ fn install_launchd_service() -> Result<()> {
     std::fs::create_dir_all(plist_path.parent().unwrap())?;
     std::fs::write(&plist_path, plist_content)?;
 
-    ui::success(&format!("Installed launchd service: {}", plist_path.display()));
+    ui::success(&format!(
+        "Installed launchd service: {}",
+        plist_path.display()
+    ));
     ui::info("Start with: openclaw daemon start");
 
     Ok(())

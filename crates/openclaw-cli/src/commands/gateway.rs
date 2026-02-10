@@ -42,11 +42,7 @@ pub async fn run_gateway(args: GatewayArgs) -> Result<()> {
 }
 
 /// Start the gateway server.
-async fn run_gateway_server(
-    port: Option<u16>,
-    bind: Option<String>,
-    force: bool,
-) -> Result<()> {
+async fn run_gateway_server(port: Option<u16>, bind: Option<String>, force: bool) -> Result<()> {
     // Load configuration
     let config = match openclaw_core::Config::load_default() {
         Ok(c) => c,
@@ -59,17 +55,17 @@ async fn run_gateway_server(
 
     // Determine port and bind address
     let server_port = port.unwrap_or(config.gateway.port);
-    let bind_address = bind.unwrap_or_else(|| {
-        match &config.gateway.mode {
-            BindMode::Local => "127.0.0.1".to_string(),
-            BindMode::Public => "0.0.0.0".to_string(),
-            BindMode::Custom(addr) => addr.clone(),
-        }
+    let bind_address = bind.unwrap_or_else(|| match &config.gateway.mode {
+        BindMode::Local => "127.0.0.1".to_string(),
+        BindMode::Public => "0.0.0.0".to_string(),
+        BindMode::Custom(addr) => addr.clone(),
     });
 
     // Check if port is already in use
     if !force {
-        if let Ok(listener) = std::net::TcpListener::bind(format!("{}:{}", bind_address, server_port)) {
+        if let Ok(listener) =
+            std::net::TcpListener::bind(format!("{}:{}", bind_address, server_port))
+        {
             drop(listener);
         } else {
             ui::error(&format!(

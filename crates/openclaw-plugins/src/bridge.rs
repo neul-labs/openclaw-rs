@@ -367,18 +367,9 @@ pub fn discover_plugins(plugins_dir: &Path) -> Vec<PluginInfo> {
             if let Ok(pkg) = serde_json::from_str::<serde_json::Value>(&content) {
                 // Check for openclaw plugin marker
                 if pkg.get("openclaw").is_some() || pkg.get("openclaw-plugin").is_some() {
-                    let name = pkg["name"]
-                        .as_str()
-                        .unwrap_or("unknown")
-                        .to_string();
-                    let version = pkg["version"]
-                        .as_str()
-                        .unwrap_or("0.0.0")
-                        .to_string();
-                    let description = pkg["description"]
-                        .as_str()
-                        .unwrap_or("")
-                        .to_string();
+                    let name = pkg["name"].as_str().unwrap_or("unknown").to_string();
+                    let version = pkg["version"].as_str().unwrap_or("0.0.0").to_string();
+                    let description = pkg["description"].as_str().unwrap_or("").to_string();
 
                     plugins.push(PluginInfo {
                         name,
@@ -411,10 +402,8 @@ pub struct PluginInfo {
 fn which_exists(cmd: &str) -> bool {
     std::env::var_os("PATH")
         .map(|paths| {
-            std::env::split_paths(&paths).any(|dir| {
-                dir.join(cmd).exists()
-                    || dir.join(format!("{cmd}.exe")).exists()
-            })
+            std::env::split_paths(&paths)
+                .any(|dir| dir.join(cmd).exists() || dir.join(format!("{cmd}.exe")).exists())
         })
         .unwrap_or(false)
 }

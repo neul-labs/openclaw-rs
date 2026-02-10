@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 use std::pin::Pin;
 
 use crate::traits::{
-    CompletionRequest, CompletionResponse, ContentBlock, MessageContent,
-    Provider, ProviderError, Role, StopReason, StreamingChunk, ChunkType,
+    ChunkType, CompletionRequest, CompletionResponse, ContentBlock, MessageContent, Provider,
+    ProviderError, Role, StopReason, StreamingChunk,
 };
 use openclaw_core::secrets::ApiKey;
 use openclaw_core::types::TokenUsage;
@@ -94,7 +94,12 @@ impl OpenAIProvider {
                 Role::Tool => {
                     if let MessageContent::Blocks(blocks) = &msg.content {
                         for block in blocks {
-                            if let ContentBlock::ToolResult { tool_use_id, content, .. } = block {
+                            if let ContentBlock::ToolResult {
+                                tool_use_id,
+                                content,
+                                ..
+                            } = block
+                            {
                                 messages.push(OpenAIMessage {
                                     role: "tool".to_string(),
                                     content: Some(OpenAIContent::Text(content.clone())),
@@ -143,7 +148,9 @@ fn content_to_openai(content: &MessageContent) -> OpenAIContent {
             let parts: Vec<OpenAIContentPart> = blocks
                 .iter()
                 .filter_map(|b| match b {
-                    ContentBlock::Text { text } => Some(OpenAIContentPart::Text { text: text.clone() }),
+                    ContentBlock::Text { text } => {
+                        Some(OpenAIContentPart::Text { text: text.clone() })
+                    }
                     ContentBlock::Image { source } => Some(OpenAIContentPart::ImageUrl {
                         image_url: OpenAIImageUrl {
                             url: format!("data:{};base64,{}", source.media_type, source.data),
@@ -157,7 +164,9 @@ fn content_to_openai(content: &MessageContent) -> OpenAIContent {
     }
 }
 
-fn extract_tool_calls(content: &MessageContent) -> (Option<OpenAIContent>, Option<Vec<OpenAIToolCall>>) {
+fn extract_tool_calls(
+    content: &MessageContent,
+) -> (Option<OpenAIContent>, Option<Vec<OpenAIToolCall>>) {
     match content {
         MessageContent::Text(text) => (Some(OpenAIContent::Text(text.clone())), None),
         MessageContent::Blocks(blocks) => {
@@ -228,7 +237,10 @@ impl Provider for OpenAIProvider {
         Ok(result.data.into_iter().map(|m| m.id).collect())
     }
 
-    async fn complete(&self, request: CompletionRequest) -> Result<CompletionResponse, ProviderError> {
+    async fn complete(
+        &self,
+        request: CompletionRequest,
+    ) -> Result<CompletionResponse, ProviderError> {
         let url = format!("{}/v1/chat/completions", self.base_url);
         let openai_request = self.to_openai_request(&request);
 
@@ -254,7 +266,9 @@ impl Provider for OpenAIProvider {
                     .and_then(|v| v.to_str().ok())
                     .and_then(|v| v.parse().ok())
                     .unwrap_or(60);
-                return Err(ProviderError::RateLimited { retry_after_secs: retry_after });
+                return Err(ProviderError::RateLimited {
+                    retry_after_secs: retry_after,
+                });
             }
 
             let message = response.text().await.unwrap_or_default();
@@ -268,7 +282,10 @@ impl Provider for OpenAIProvider {
     async fn complete_stream(
         &self,
         request: CompletionRequest,
-    ) -> Result<Pin<Box<dyn Stream<Item = Result<StreamingChunk, ProviderError>> + Send>>, ProviderError> {
+    ) -> Result<
+        Pin<Box<dyn Stream<Item = Result<StreamingChunk, ProviderError>> + Send>>,
+        ProviderError,
+    > {
         let url = format!("{}/v1/chat/completions", self.base_url);
         let mut openai_request = self.to_openai_request(&request);
         openai_request.stream = Some(true);
@@ -291,14 +308,12 @@ impl Provider for OpenAIProvider {
             return Err(ProviderError::Api { status, message });
         }
 
-        let stream = response.bytes_stream().map(move |result| {
-            match result {
-                Ok(bytes) => {
-                    let text = String::from_utf8_lossy(&bytes);
-                    parse_sse_event(&text)
-                }
-                Err(e) => Err(ProviderError::Network(e)),
+        let stream = response.bytes_stream().map(move |result| match result {
+            Ok(bytes) => {
+                let text = String::from_utf8_lossy(&bytes);
+                parse_sse_event(&text)
             }
+            Err(e) => Err(ProviderError::Network(e)),
         });
 
         Ok(Box::pin(stream))

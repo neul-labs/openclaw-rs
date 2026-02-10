@@ -4,7 +4,7 @@ mod commands;
 mod ui;
 
 use clap::{Parser, Subcommand};
-use tracing_subscriber::{fmt, prelude::*, EnvFilter};
+use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
 #[derive(Parser)]
 #[command(name = "openclaw")]
@@ -295,7 +295,9 @@ async fn main() -> anyhow::Result<()> {
                 // First run - suggest onboarding
                 ui::banner();
                 ui::info("Welcome to OpenClaw!");
-                ui::info("Run 'openclaw onboard' to get started, or 'openclaw --help' for all commands.");
+                ui::info(
+                    "Run 'openclaw onboard' to get started, or 'openclaw --help' for all commands.",
+                );
                 return Ok(());
             }
         }

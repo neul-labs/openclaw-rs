@@ -160,11 +160,7 @@ fn set_config_value(config_path: &PathBuf, kv: &str) -> Result<()> {
 }
 
 /// Set a nested value in a JSON object.
-fn set_nested_value(
-    root: &mut serde_json::Value,
-    path: &[&str],
-    value: &str,
-) -> Result<()> {
+fn set_nested_value(root: &mut serde_json::Value, path: &[&str], value: &str) -> Result<()> {
     if path.is_empty() {
         return Ok(());
     }

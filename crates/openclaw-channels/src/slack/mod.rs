@@ -142,7 +142,10 @@ impl Channel for SlackChannel {
     }
 
     async fn probe(&self) -> Result<ChannelProbe, ChannelError> {
-        match self.call::<AuthTestResponse>("auth.test", None::<&()>).await {
+        match self
+            .call::<AuthTestResponse>("auth.test", None::<&()>)
+            .await
+        {
             Ok(auth) => Ok(ChannelProbe {
                 connected: true,
                 account_id: Some(auth.user_id),

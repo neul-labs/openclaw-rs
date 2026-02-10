@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use thiserror::Error;
 
-use openclaw_core::types::{Message, DeliveryResult, Attachment};
+use openclaw_core::types::{Attachment, DeliveryResult, Message};
 
 /// Channel errors.
 #[derive(Error, Debug)]
@@ -126,10 +126,18 @@ pub trait Channel: Send + Sync {
 #[async_trait]
 pub trait ChannelOutbound: Channel {
     /// Send a text message.
-    async fn send_text(&self, ctx: OutboundContext, text: &str) -> Result<DeliveryResult, ChannelError>;
+    async fn send_text(
+        &self,
+        ctx: OutboundContext,
+        text: &str,
+    ) -> Result<DeliveryResult, ChannelError>;
 
     /// Send media attachments.
-    async fn send_media(&self, ctx: OutboundContext, media: &[Attachment]) -> Result<DeliveryResult, ChannelError>;
+    async fn send_media(
+        &self,
+        ctx: OutboundContext,
+        media: &[Attachment],
+    ) -> Result<DeliveryResult, ChannelError>;
 
     /// Maximum text message length.
     fn text_chunk_limit(&self) -> usize;

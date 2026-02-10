@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 use std::pin::Pin;
 
 use crate::traits::{
-    CompletionRequest, CompletionResponse, ContentBlock, MessageContent,
-    Provider, ProviderError, Role, StopReason, StreamingChunk, ChunkType,
+    ChunkType, CompletionRequest, CompletionResponse, ContentBlock, MessageContent, Provider,
+    ProviderError, Role, StopReason, StreamingChunk,
 };
 use openclaw_core::secrets::ApiKey;
 use openclaw_core::types::TokenUsage;
@@ -106,7 +106,10 @@ impl Provider for AnthropicProvider {
         ])
     }
 
-    async fn complete(&self, request: CompletionRequest) -> Result<CompletionResponse, ProviderError> {
+    async fn complete(
+        &self,
+        request: CompletionRequest,
+    ) -> Result<CompletionResponse, ProviderError> {
         let url = format!("{}/v1/messages", self.base_url);
         let anthropic_request = self.to_anthropic_request(&request);
 
@@ -131,7 +134,9 @@ impl Provider for AnthropicProvider {
                     .and_then(|v| v.to_str().ok())
                     .and_then(|v| v.parse().ok())
                     .unwrap_or(60);
-                return Err(ProviderError::RateLimited { retry_after_secs: retry_after });
+                return Err(ProviderError::RateLimited {
+                    retry_after_secs: retry_after,
+                });
             }
 
             let message = response.text().await.unwrap_or_default();
@@ -145,7 +150,10 @@ impl Provider for AnthropicProvider {
     async fn complete_stream(
         &self,
         request: CompletionRequest,
-    ) -> Result<Pin<Box<dyn Stream<Item = Result<StreamingChunk, ProviderError>> + Send>>, ProviderError> {
+    ) -> Result<
+        Pin<Box<dyn Stream<Item = Result<StreamingChunk, ProviderError>> + Send>>,
+        ProviderError,
+    > {
         let url = format!("{}/v1/messages", self.base_url);
         let mut anthropic_request = self.to_anthropic_request(&request);
         anthropic_request.stream = Some(true);
@@ -166,14 +174,12 @@ impl Provider for AnthropicProvider {
             return Err(ProviderError::Api { status, message });
         }
 
-        let stream = response.bytes_stream().map(move |result| {
-            match result {
-                Ok(bytes) => {
-                    let text = String::from_utf8_lossy(&bytes);
-                    parse_sse_event(&text)
-                }
-                Err(e) => Err(ProviderError::Network(e)),
+        let stream = response.bytes_stream().map(move |result| match result {
+            Ok(bytes) => {
+                let text = String::from_utf8_lossy(&bytes);
+                parse_sse_event(&text)
             }
+            Err(e) => Err(ProviderError::Network(e)),
         });
 
         Ok(Box::pin(stream))
@@ -242,10 +248,21 @@ enum AnthropicContent {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 enum AnthropicContentBlock {
-    Text { text: String },
-    Image { source: ImageSourceApi },
-    ToolUse { id: String, name: String, input: serde_json::Value },
-    ToolResult { tool_use_id: String, content: String },
+    Text {
+        text: String,
+    },
+    Image {
+        source: ImageSourceApi,
+    },
+    ToolUse {
+        id: String,
+        name: String,
+        input: serde_json::Value,
+    },
+    ToolResult {
+        tool_use_id: String,
+        content: String,
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -315,9 +332,14 @@ impl From<ContentBlock> for AnthropicContentBlock {
             ContentBlock::ToolUse { id, name, input } => {
                 AnthropicContentBlock::ToolUse { id, name, input }
             }
-            ContentBlock::ToolResult { tool_use_id, content, .. } => {
-                AnthropicContentBlock::ToolResult { tool_use_id, content }
-            }
+            ContentBlock::ToolResult {
+                tool_use_id,
+                content,
+                ..
+            } => AnthropicContentBlock::ToolResult {
+                tool_use_id,
+                content,
+            },
         }
     }
 }
@@ -336,13 +358,14 @@ impl From<AnthropicContentBlock> for ContentBlock {
             AnthropicContentBlock::ToolUse { id, name, input } => {
                 ContentBlock::ToolUse { id, name, input }
             }
-            AnthropicContentBlock::ToolResult { tool_use_id, content } => {
-                ContentBlock::ToolResult {
-                    tool_use_id,
-                    content,
-                    is_error: None,
-                }
-            }
+            AnthropicContentBlock::ToolResult {
+                tool_use_id,
+                content,
+            } => ContentBlock::ToolResult {
+                tool_use_id,
+                content,
+                is_error: None,
+            },
         }
     }
 }

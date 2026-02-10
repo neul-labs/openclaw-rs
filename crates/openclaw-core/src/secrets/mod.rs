@@ -5,8 +5,8 @@
 //! - `scrub_secrets`: Redact secrets from error messages
 
 use aes_gcm::{
-    aead::{Aead, KeyInit},
     Aes256Gcm, Nonce,
+    aead::{Aead, KeyInit},
 };
 use secrecy::{ExposeSecret, SecretBox};
 use std::path::PathBuf;

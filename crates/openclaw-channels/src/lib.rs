@@ -5,36 +5,36 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 
-mod traits;
-mod routing;
 mod allowlist;
 mod registry;
+mod routing;
+mod traits;
 
-/// Telegram channel adapter.
-pub mod telegram;
 /// Discord channel adapter.
 pub mod discord;
-/// Slack channel adapter.
-pub mod slack;
-/// Signal channel adapter.
-pub mod signal;
 /// Matrix channel adapter.
 pub mod matrix;
+/// Signal channel adapter.
+pub mod signal;
+/// Slack channel adapter.
+pub mod slack;
+/// Telegram channel adapter.
+pub mod telegram;
 /// WhatsApp channel adapter.
 pub mod whatsapp;
 
-pub use traits::{
-    Channel, ChannelInbound, ChannelOutbound, ChannelError, ChannelProbe,
-    ChannelCapabilities, ChannelContext, OutboundContext, DeliveryMode,
-};
-pub use routing::AgentRouter;
 pub use allowlist::{Allowlist, AllowlistEntry};
 pub use registry::ChannelRegistry;
+pub use routing::AgentRouter;
+pub use traits::{
+    Channel, ChannelCapabilities, ChannelContext, ChannelError, ChannelInbound, ChannelOutbound,
+    ChannelProbe, DeliveryMode, OutboundContext,
+};
 
 // Re-export channel implementations
-pub use telegram::TelegramChannel;
 pub use discord::DiscordChannel;
-pub use slack::SlackChannel;
-pub use signal::SignalChannel;
 pub use matrix::MatrixChannel;
+pub use signal::SignalChannel;
+pub use slack::SlackChannel;
+pub use telegram::TelegramChannel;
 pub use whatsapp::WhatsAppChannel;

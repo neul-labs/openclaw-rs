@@ -1,8 +1,8 @@
 //! Usage tracking for providers.
 
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::RwLock;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use openclaw_core::types::TokenUsage;
 

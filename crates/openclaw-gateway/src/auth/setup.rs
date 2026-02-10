@@ -6,8 +6,8 @@ use chrono::{DateTime, Utc};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
-use super::users::{User, UserRole, UserStore};
 use super::AuthError;
+use super::users::{User, UserRole, UserStore};
 
 /// Bootstrap token validity duration.
 const BOOTSTRAP_TOKEN_VALIDITY: Duration = Duration::from_secs(3600); // 1 hour
@@ -113,9 +113,7 @@ impl BootstrapManager {
 
         // Check system isn't already initialized
         if !user_store.is_empty() {
-            return Err(AuthError::Config(
-                "System already initialized".to_string(),
-            ));
+            return Err(AuthError::Config("System already initialized".to_string()));
         }
 
         // Create admin user
@@ -144,9 +142,9 @@ impl BootstrapManager {
             .is_some_and(|t| Instant::now() < t.expires_at);
 
         let setup_url = if !initialized && bootstrap_active {
-            self.token.as_ref().and_then(|t| {
-                base_url.map(|url| format!("{url}/setup?token={}", t.value))
-            })
+            self.token
+                .as_ref()
+                .and_then(|t| base_url.map(|url| format!("{url}/setup?token={}", t.value)))
         } else {
             None
         };
@@ -208,7 +206,10 @@ impl BootstrapManager {
             println!("│  Or via CLI:                                             │");
             println!("│  openclaw admin create --username admin --password ...   │");
             println!("│                                                          │");
-            println!("│  Bootstrap token expires in {} minutes.                  │", minutes);
+            println!(
+                "│  Bootstrap token expires in {} minutes.                  │",
+                minutes
+            );
             println!("└─────────────────────────────────────────────────────────┘");
             println!();
         }
@@ -260,7 +261,8 @@ pub fn auto_setup_from_env(user_store: &UserStore) -> Result<Option<User>, AuthE
 #[must_use]
 pub fn generate_password(length: usize) -> String {
     use rand::RngCore;
-    const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+    const CHARSET: &[u8] =
+        b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
     let mut rng = rand::thread_rng();
 
     (0..length)
@@ -273,8 +275,7 @@ pub fn generate_password(length: usize) -> String {
 
 /// URL-safe base64 encoding without padding.
 fn base64_url_encode(data: &[u8]) -> String {
-    const ALPHABET: &[u8; 64] =
-        b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    const ALPHABET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
     let mut result = String::with_capacity((data.len() * 4 + 2) / 3);
 

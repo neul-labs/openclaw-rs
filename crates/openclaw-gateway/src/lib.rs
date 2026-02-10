@@ -9,20 +9,20 @@
 pub mod auth;
 /// WebSocket UI events.
 pub mod events;
-mod server;
+mod middleware;
 /// JSON-RPC protocol types and constants.
 pub mod rpc;
-mod middleware;
+mod server;
 
 /// UI static file server (requires "ui" feature).
 #[cfg(feature = "ui")]
 pub mod ui_server;
 
-pub use server::{Gateway, GatewayConfig, GatewayBuilder, GatewayState};
-pub use rpc::{RpcRequest, RpcResponse, RpcError};
-pub use middleware::GatewayRateLimiter;
 pub use auth::{AuthConfig, AuthError, AuthState, User, UserRole, UserStore};
 pub use events::{EventBroadcaster, UiEvent, UiEventEnvelope};
+pub use middleware::GatewayRateLimiter;
+pub use rpc::{RpcError, RpcRequest, RpcResponse};
+pub use server::{Gateway, GatewayBuilder, GatewayConfig, GatewayState};
 
 #[cfg(feature = "ui")]
 pub use ui_server::UiServerConfig;

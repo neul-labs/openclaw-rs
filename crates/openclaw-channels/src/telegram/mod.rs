@@ -46,7 +46,12 @@ impl TelegramChannel {
 
     /// Get the Bot API URL.
     fn api_url(&self, method: &str) -> String {
-        format!("{}/bot{}/{}", TELEGRAM_API_BASE, self.token.expose(), method)
+        format!(
+            "{}/bot{}/{}",
+            TELEGRAM_API_BASE,
+            self.token.expose(),
+            method
+        )
     }
 
     /// Call a Telegram Bot API method.
@@ -83,7 +88,9 @@ impl TelegramChannel {
                 .ok_or_else(|| ChannelError::Network("Empty response".to_string()))
         } else {
             Err(ChannelError::Network(
-                result.description.unwrap_or_else(|| "Unknown error".to_string()),
+                result
+                    .description
+                    .unwrap_or_else(|| "Unknown error".to_string()),
             ))
         }
     }
@@ -106,7 +113,7 @@ impl Channel for TelegramChannel {
             videos: true,
             voice: true,
             files: true,
-            threads: true, // Reply threads
+            threads: true,    // Reply threads
             reactions: false, // Bot API doesn't support reactions well
             editing: true,
             deletion: true,
@@ -152,7 +159,11 @@ impl Channel for TelegramChannel {
 
 #[async_trait]
 impl ChannelOutbound for TelegramChannel {
-    async fn send_text(&self, ctx: OutboundContext, text: &str) -> Result<DeliveryResult, ChannelError> {
+    async fn send_text(
+        &self,
+        ctx: OutboundContext,
+        text: &str,
+    ) -> Result<DeliveryResult, ChannelError> {
         let params = SendMessageParams {
             chat_id: ctx.chat_id.clone(),
             text: text.to_string(),

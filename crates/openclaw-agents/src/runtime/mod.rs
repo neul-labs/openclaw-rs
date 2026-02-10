@@ -3,8 +3,8 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use openclaw_core::types::{AgentId, SessionKey};
 use openclaw_core::events::SessionProjection;
+use openclaw_core::types::{AgentId, SessionKey};
 use openclaw_providers::traits::Provider;
 
 use crate::tools::ToolRegistry;

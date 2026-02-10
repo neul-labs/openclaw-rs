@@ -189,9 +189,7 @@ impl ChannelOutbound for MatrixChannel {
         // Add reply relation if replying
         if let Some(reply_to) = ctx.reply_to {
             content.relates_to = Some(RelatesTo {
-                in_reply_to: Some(InReplyTo {
-                    event_id: reply_to,
-                }),
+                in_reply_to: Some(InReplyTo { event_id: reply_to }),
                 rel_type: None,
                 event_id: None,
             });
@@ -231,7 +229,10 @@ impl ChannelOutbound for MatrixChannel {
 
             let content = MediaMessageContent {
                 msgtype: msgtype.to_string(),
-                body: attachment.filename.clone().unwrap_or_else(|| "file".to_string()),
+                body: attachment
+                    .filename
+                    .clone()
+                    .unwrap_or_else(|| "file".to_string()),
                 url: attachment.url.clone(),
                 info: Some(MediaInfo {
                     mimetype: attachment.mime_type.clone(),
@@ -460,19 +461,13 @@ mod tests {
 
     #[test]
     fn test_channel_id() {
-        let channel = MatrixChannel::new(
-            "https://matrix.org",
-            ApiKey::new("test".to_string()),
-        );
+        let channel = MatrixChannel::new("https://matrix.org", ApiKey::new("test".to_string()));
         assert_eq!(channel.id(), "matrix");
     }
 
     #[test]
     fn test_capabilities() {
-        let channel = MatrixChannel::new(
-            "https://matrix.org",
-            ApiKey::new("test".to_string()),
-        );
+        let channel = MatrixChannel::new("https://matrix.org", ApiKey::new("test".to_string()));
         let caps = channel.capabilities();
         assert!(caps.text);
         assert!(caps.images);

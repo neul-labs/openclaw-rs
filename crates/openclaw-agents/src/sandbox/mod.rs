@@ -156,7 +156,13 @@ fn execute_sandboxed_linux(
     use std::time::Instant;
 
     // Check if bwrap is available
-    if Command::new("which").arg("bwrap").output()?.status.success() == false {
+    if Command::new("which")
+        .arg("bwrap")
+        .output()?
+        .status
+        .success()
+        == false
+    {
         return Err(SandboxError::NotAvailable(
             "bubblewrap (bwrap) not installed".to_string(),
         ));
@@ -181,22 +187,42 @@ fn execute_sandboxed_linux(
         }
         SandboxLevel::Standard | SandboxLevel::Strict => {
             bwrap
-                .arg("--ro-bind").arg("/usr").arg("/usr")
-                .arg("--ro-bind").arg("/lib").arg("/lib")
-                .arg("--ro-bind").arg("/bin").arg("/bin")
-                .arg("--ro-bind").arg("/sbin").arg("/sbin")
-                .arg("--symlink").arg("/usr/lib64").arg("/lib64")
-                .arg("--tmpfs").arg("/tmp")
-                .arg("--proc").arg("/proc")
-                .arg("--dev").arg("/dev");
+                .arg("--ro-bind")
+                .arg("/usr")
+                .arg("/usr")
+                .arg("--ro-bind")
+                .arg("/lib")
+                .arg("/lib")
+                .arg("--ro-bind")
+                .arg("/bin")
+                .arg("/bin")
+                .arg("--ro-bind")
+                .arg("/sbin")
+                .arg("/sbin")
+                .arg("--symlink")
+                .arg("/usr/lib64")
+                .arg("/lib64")
+                .arg("--tmpfs")
+                .arg("/tmp")
+                .arg("--proc")
+                .arg("/proc")
+                .arg("--dev")
+                .arg("/dev");
         }
         SandboxLevel::Paranoid => {
             bwrap
-                .arg("--tmpfs").arg("/")
-                .arg("--ro-bind").arg("/usr/bin").arg("/usr/bin")
-                .arg("--ro-bind").arg("/usr/lib").arg("/usr/lib")
-                .arg("--proc").arg("/proc")
-                .arg("--dev").arg("/dev");
+                .arg("--tmpfs")
+                .arg("/")
+                .arg("--ro-bind")
+                .arg("/usr/bin")
+                .arg("/usr/bin")
+                .arg("--ro-bind")
+                .arg("/usr/lib")
+                .arg("/usr/lib")
+                .arg("--proc")
+                .arg("/proc")
+                .arg("--dev")
+                .arg("/dev");
         }
     }
 
@@ -317,7 +343,8 @@ fn generate_seatbelt_profile(config: &SandboxConfig) -> Result<String, SandboxEr
     }
 
     // Allow process execution
-    profile.push_str(r#"
+    profile.push_str(
+        r#"
 ; Allow process execution
 (allow process-exec)
 (allow process-fork)
@@ -349,7 +376,8 @@ fn generate_seatbelt_profile(config: &SandboxConfig) -> Result<String, SandboxEr
 (allow mach-lookup)
 (allow signal (target self))
 (allow sysctl-read)
-"#);
+"#,
+    );
 
     // Add allowed paths
     for path in &config.allowed_paths {
@@ -362,38 +390,44 @@ fn generate_seatbelt_profile(config: &SandboxConfig) -> Result<String, SandboxEr
     // Add read-only paths
     for path in &config.readonly_paths {
         let path_str = path.display();
-        profile.push_str(&format!(
-            "(allow file-read* (subpath \"{path_str}\"))\n"
-        ));
+        profile.push_str(&format!("(allow file-read* (subpath \"{path_str}\"))\n"));
     }
 
     // Temp directory access
-    profile.push_str(r#"
+    profile.push_str(
+        r#"
 ; Allow temp file operations
 (allow file-read* file-write*
     (subpath "/private/tmp")
     (subpath "/var/folders"))
-"#);
+"#,
+    );
 
     // Network access based on config
     if config.network_allowed {
-        profile.push_str(r#"
+        profile.push_str(
+            r#"
 ; Allow network access
 (allow network*)
-"#);
+"#,
+        );
     } else if config.level < SandboxLevel::Strict {
-        profile.push_str(r#"
+        profile.push_str(
+            r#"
 ; Allow DNS lookup only
 (allow network-outbound (remote unix-socket (path-literal "/var/run/mDNSResponder")))
-"#);
+"#,
+        );
     }
 
     // Home directory access (read-only for non-paranoid)
     if config.level < SandboxLevel::Paranoid {
-        profile.push_str(r#"
+        profile.push_str(
+            r#"
 ; Allow reading home directory
 (allow file-read* (subpath (param "HOME")))
-"#);
+"#,
+        );
     }
 
     Ok(profile)
@@ -422,15 +456,15 @@ fn execute_sandboxed_windows(
         CloseHandle, GetLastError, HANDLE, INVALID_HANDLE_VALUE, WAIT_OBJECT_0, WAIT_TIMEOUT,
     };
     use windows_sys::Win32::System::JobObjects::{
-        AssignProcessToJobObject, CreateJobObjectW, JobObjectBasicLimitInformation,
-        JobObjectExtendedLimitInformation, QueryInformationJobObject, SetInformationJobObject,
-        TerminateJobObject, JOBOBJECT_BASIC_LIMIT_INFORMATION, JOBOBJECT_EXTENDED_LIMIT_INFORMATION,
-        JOB_OBJECT_LIMIT_ACTIVE_PROCESS, JOB_OBJECT_LIMIT_JOB_MEMORY, JOB_OBJECT_LIMIT_JOB_TIME,
-        JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+        AssignProcessToJobObject, CreateJobObjectW, JOB_OBJECT_LIMIT_ACTIVE_PROCESS,
+        JOB_OBJECT_LIMIT_JOB_MEMORY, JOB_OBJECT_LIMIT_JOB_TIME, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+        JOBOBJECT_BASIC_LIMIT_INFORMATION, JOBOBJECT_EXTENDED_LIMIT_INFORMATION,
+        JobObjectBasicLimitInformation, JobObjectExtendedLimitInformation,
+        QueryInformationJobObject, SetInformationJobObject, TerminateJobObject,
     };
     use windows_sys::Win32::System::Threading::{
-        GetExitCodeProcess, OpenProcess, ResumeThread, WaitForSingleObject, INFINITE,
-        PROCESS_ALL_ACCESS, CREATE_SUSPENDED,
+        CREATE_SUSPENDED, GetExitCodeProcess, INFINITE, OpenProcess, PROCESS_ALL_ACCESS,
+        ResumeThread, WaitForSingleObject,
     };
 
     tracing::info!("Windows sandbox using Job Objects (limited filesystem/network isolation)");
@@ -568,7 +602,9 @@ fn execute_sandboxed_windows(
     // Simpler implementation: create job, spawn process, assign job, wait
     let job: HANDLE = unsafe { CreateJobObjectW(ptr::null(), ptr::null()) };
     if job == 0 || job == INVALID_HANDLE_VALUE {
-        return Err(SandboxError::ExecutionError("Failed to create job object".to_string()));
+        return Err(SandboxError::ExecutionError(
+            "Failed to create job object".to_string(),
+        ));
     }
     let _job_guard = JobGuard(job);
 
@@ -637,7 +673,9 @@ fn execute_sandboxed_windows(
     }
 
     // Collect output
-    let output = child.wait_with_output().map_err(SandboxError::SpawnFailed)?;
+    let output = child
+        .wait_with_output()
+        .map_err(SandboxError::SpawnFailed)?;
     let duration = start.elapsed();
 
     // Check if killed by memory limit (check job counters)
@@ -727,7 +765,11 @@ mod tests {
         };
 
         let result = execute_sandboxed("echo", &["hello"], &config);
-        assert!(result.is_ok(), "Sandbox execution failed: {:?}", result.err());
+        assert!(
+            result.is_ok(),
+            "Sandbox execution failed: {:?}",
+            result.err()
+        );
 
         let output = result.unwrap();
         assert_eq!(output.stdout.trim(), "hello");

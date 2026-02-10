@@ -6,32 +6,31 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use axum::{
-    Router,
-    routing::{get, post},
+    Json, Router,
     extract::State,
     extract::ws::{Message, WebSocket, WebSocketUpgrade},
     response::IntoResponse,
-    Json,
+    routing::{get, post},
 };
 use chrono::Utc;
 use futures::{SinkExt, StreamExt};
 use tokio::sync::RwLock;
 
+use openclaw_agents::runtime::{AgentContext, AgentRuntime};
+use openclaw_agents::tools::ToolRegistry;
+use openclaw_channels::{ChannelCapabilities, ChannelProbe, ChannelRegistry};
 use openclaw_core::events::{
     EventStore, SessionEvent, SessionEventKind, SessionMessage, SessionProjection, SessionState,
 };
 use openclaw_core::types::{AgentId, ChannelId, SessionKey};
-use openclaw_agents::runtime::{AgentContext, AgentRuntime};
-use openclaw_agents::tools::ToolRegistry;
-use openclaw_channels::{ChannelRegistry, ChannelProbe, ChannelCapabilities};
 
+use crate::GatewayError;
 use crate::auth::{
-    AuthConfig, AuthState, BootstrapManager, JwtManager, SetupStatus,
-    User, UserRole, UserStore, setup::auto_setup_from_env,
+    AuthConfig, AuthState, BootstrapManager, JwtManager, SetupStatus, User, UserRole, UserStore,
+    setup::auto_setup_from_env,
 };
 use crate::events::{EventBroadcaster, UiEvent, UiEventEnvelope};
 use crate::rpc::{self, RpcRequest, RpcResponse};
-use crate::GatewayError;
 
 #[cfg(feature = "ui")]
 use crate::ui_server::UiServerConfig;
@@ -178,9 +177,9 @@ impl GatewayBuilder {
     ///
     /// Returns error if event store is not configured or auth initialization fails.
     pub fn build(self) -> Result<Gateway, GatewayError> {
-        let event_store = self.event_store.ok_or_else(|| {
-            GatewayError::Config("Event store is required".to_string())
-        })?;
+        let event_store = self
+            .event_store
+            .ok_or_else(|| GatewayError::Config("Event store is required".to_string()))?;
 
         // Ensure data directory exists
         std::fs::create_dir_all(&self.config.data_dir)
@@ -193,7 +192,7 @@ impl GatewayBuilder {
                 let auth_config = self.config.auth.clone().with_env_overrides();
                 Arc::new(
                     AuthState::initialize(auth_config, &self.config.data_dir)
-                        .map_err(|e| GatewayError::Config(format!("Auth init failed: {e}")))?
+                        .map_err(|e| GatewayError::Config(format!("Auth init failed: {e}")))?,
                 )
             }
         };
@@ -244,14 +243,14 @@ impl Gateway {
         // Create event store in data directory
         let event_store = Arc::new(
             EventStore::open(&config.data_dir.join("events"))
-                .map_err(|e| GatewayError::Server(format!("Failed to open event store: {e}")))?
+                .map_err(|e| GatewayError::Server(format!("Failed to open event store: {e}")))?,
         );
 
         // Initialize auth
         let auth_config = config.auth.clone().with_env_overrides();
         let auth = Arc::new(
             AuthState::initialize(auth_config, &config.data_dir)
-                .map_err(|e| GatewayError::Config(format!("Auth init failed: {e}")))?
+                .map_err(|e| GatewayError::Config(format!("Auth init failed: {e}")))?,
         );
 
         // Auto-setup from environment if configured
@@ -307,9 +306,7 @@ impl Gateway {
 
         // Start API server
         let api_listener = tokio::net::TcpListener::bind(addr).await?;
-        let api_handle = tokio::spawn(async move {
-            axum::serve(api_listener, app).await
-        });
+        let api_handle = tokio::spawn(async move { axum::serve(api_listener, app).await });
 
         // Optionally start UI server
         #[cfg(feature = "ui")]
@@ -420,7 +417,8 @@ async fn handle_socket(
                             rpc::UNAUTHORIZED,
                             format!("Invalid token: {e}"),
                         );
-                        let response_text = serde_json::to_string(&error_response).unwrap_or_default();
+                        let response_text =
+                            serde_json::to_string(&error_response).unwrap_or_default();
                         let mut guard = sender.lock().await;
                         let _ = guard.send(Message::Text(response_text.into())).await;
                         return;
@@ -514,14 +512,15 @@ async fn handle_socket(
         let request: RpcRequest = match serde_json::from_str(&msg) {
             Ok(req) => req,
             Err(e) => {
-                let error_response = RpcResponse::error(
-                    None,
-                    rpc::PARSE_ERROR,
-                    format!("Parse error: {}", e),
-                );
+                let error_response =
+                    RpcResponse::error(None, rpc::PARSE_ERROR, format!("Parse error: {}", e));
                 let response_text = serde_json::to_string(&error_response).unwrap_or_default();
                 let mut guard = sender.lock().await;
-                if guard.send(Message::Text(response_text.into())).await.is_err() {
+                if guard
+                    .send(Message::Text(response_text.into()))
+                    .await
+                    .is_err()
+                {
                     break;
                 }
                 continue;
@@ -544,7 +543,11 @@ async fn handle_socket(
 
         let response_text = serde_json::to_string(&response).unwrap_or_default();
         let mut guard = sender.lock().await;
-        if guard.send(Message::Text(response_text.into())).await.is_err() {
+        if guard
+            .send(Message::Text(response_text.into()))
+            .await
+            .is_err()
+        {
             break;
         }
     }
@@ -567,13 +570,13 @@ async fn dispatch_rpc(
 
     // Check if method requires auth
     if state_read.auth.requires_auth(method) {
-        let token = auth_token.ok_or_else(|| {
-            (rpc::UNAUTHORIZED, "Authentication required".to_string())
-        })?;
+        let token =
+            auth_token.ok_or_else(|| (rpc::UNAUTHORIZED, "Authentication required".to_string()))?;
 
-        state_read.auth.validate_token(token).map_err(|e| {
-            (rpc::UNAUTHORIZED, format!("Invalid token: {e}"))
-        })?;
+        state_read
+            .auth
+            .validate_token(token)
+            .map_err(|e| (rpc::UNAUTHORIZED, format!("Invalid token: {e}")))?;
     }
 
     drop(state_read);
@@ -626,7 +629,10 @@ async fn dispatch_rpc(
         // Event subscription (WebSocket-only, returns ack)
         "events.subscribe" => handle_events_subscribe().await,
 
-        _ => Err((rpc::METHOD_NOT_FOUND, format!("Method not found: {}", method))),
+        _ => Err((
+            rpc::METHOD_NOT_FOUND,
+            format!("Method not found: {}", method),
+        )),
     }
 }
 
@@ -667,11 +673,12 @@ async fn handle_auth_login(
         .map_err(|_| (rpc::UNAUTHORIZED, "Invalid credentials".to_string()))?;
 
     // Update last login
-    state
-        .auth
-        .users
-        .update_last_login(&user.id)
-        .map_err(|e| (rpc::INTERNAL_ERROR, format!("Failed to update login time: {e}")))?;
+    state.auth.users.update_last_login(&user.id).map_err(|e| {
+        (
+            rpc::INTERNAL_ERROR,
+            format!("Failed to update login time: {e}"),
+        )
+    })?;
 
     // Generate tokens
     let token_pair = state
@@ -722,10 +729,7 @@ async fn handle_auth_refresh(
     }))
 }
 
-async fn handle_auth_me(
-    state: &Arc<RwLock<GatewayState>>,
-    auth_token: Option<&str>,
-) -> RpcResult {
+async fn handle_auth_me(state: &Arc<RwLock<GatewayState>>, auth_token: Option<&str>) -> RpcResult {
     let token = auth_token.ok_or((rpc::UNAUTHORIZED, "Not authenticated".to_string()))?;
 
     let state = state.read().await;
@@ -754,10 +758,7 @@ async fn handle_setup_status(state: &Arc<RwLock<GatewayState>>) -> RpcResult {
     let state = state.read().await;
     let bootstrap = state.auth.bootstrap.read().await;
 
-    let base_url = format!(
-        "http://{}:{}",
-        state.config.bind_address, state.config.port
-    );
+    let base_url = format!("http://{}:{}", state.config.bind_address, state.config.port);
 
     let status = bootstrap.status(&state.auth.users, Some(&base_url));
 
@@ -784,7 +785,13 @@ async fn handle_setup_init(
     let mut bootstrap = state.auth.bootstrap.write().await;
 
     let admin = bootstrap
-        .complete_setup(&state.auth.users, bootstrap_token, username, password, email)
+        .complete_setup(
+            &state.auth.users,
+            bootstrap_token,
+            username,
+            password,
+            email,
+        )
         .map_err(|e| (rpc::UNAUTHORIZED, format!("Setup failed: {e}")))?;
 
     // Generate tokens for the new admin
@@ -941,7 +948,10 @@ async fn handle_users_delete(
         .list()
         .map_err(|e| (rpc::INTERNAL_ERROR, format!("Storage error: {e}")))?;
 
-    let admin_count = users.iter().filter(|u| u.role.is_admin() && u.active).count();
+    let admin_count = users
+        .iter()
+        .filter(|u| u.role.is_admin() && u.active)
+        .count();
     let target_user = users.iter().find(|u| u.id == id);
 
     if let Some(user) = target_user {
@@ -1001,14 +1011,8 @@ async fn handle_session_create(
     state: &Arc<RwLock<GatewayState>>,
     params: &serde_json::Value,
 ) -> RpcResult {
-    let agent_id = params["agent_id"]
-        .as_str()
-        .unwrap_or("default")
-        .to_string();
-    let channel = params["channel"]
-        .as_str()
-        .unwrap_or("api")
-        .to_string();
+    let agent_id = params["agent_id"].as_str().unwrap_or("default").to_string();
+    let channel = params["channel"].as_str().unwrap_or("api").to_string();
     let peer_id = params["peer_id"]
         .as_str()
         .unwrap_or("anonymous")
@@ -1032,10 +1036,12 @@ async fn handle_session_create(
     );
 
     let state = state.read().await;
-    state
-        .event_store
-        .append(&event)
-        .map_err(|e| (rpc::INTERNAL_ERROR, format!("Failed to create session: {e}")))?;
+    state.event_store.append(&event).map_err(|e| {
+        (
+            rpc::INTERNAL_ERROR,
+            format!("Failed to create session: {e}"),
+        )
+    })?;
 
     Ok(serde_json::json!({
         "session_key": session_key.as_ref(),
@@ -1055,9 +1061,7 @@ async fn handle_session_message(
     let message = params["message"]
         .as_str()
         .ok_or((rpc::INVALID_PARAMS, "Missing message".to_string()))?;
-    let agent_id_str = params["agent_id"]
-        .as_str()
-        .unwrap_or("default");
+    let agent_id_str = params["agent_id"].as_str().unwrap_or("default");
 
     let session_key = SessionKey::new(session_key_str);
     let state = state.read().await;
@@ -1077,10 +1081,10 @@ async fn handle_session_message(
         .map_err(|e| (rpc::INTERNAL_ERROR, format!("Failed to log message: {e}")))?;
 
     // Get agent runtime
-    let agent = state
-        .agents
-        .get(agent_id_str)
-        .ok_or((rpc::INVALID_PARAMS, format!("Agent not found: {agent_id_str}")))?;
+    let agent = state.agents.get(agent_id_str).ok_or((
+        rpc::INVALID_PARAMS,
+        format!("Agent not found: {agent_id_str}"),
+    ))?;
 
     // Get or create session projection
     let projection = state
@@ -1166,7 +1170,9 @@ async fn handle_session_end(
     let event = SessionEvent::new(
         session_key,
         "gateway".to_string(),
-        SessionEventKind::SessionEnded { reason: reason.clone() },
+        SessionEventKind::SessionEnded {
+            reason: reason.clone(),
+        },
     );
 
     state
@@ -1555,7 +1561,10 @@ async fn handle_tools_execute(
     let tool_name = params["tool_name"]
         .as_str()
         .ok_or((rpc::INVALID_PARAMS, "Missing tool_name".to_string()))?;
-    let tool_params = params.get("params").cloned().unwrap_or(serde_json::json!({}));
+    let tool_params = params
+        .get("params")
+        .cloned()
+        .unwrap_or(serde_json::json!({}));
 
     let state = state.read().await;
     let result = state
@@ -1584,9 +1593,7 @@ mod tests {
         let temp_dir = std::env::temp_dir().join("openclaw-gateway-test");
         let store = Arc::new(EventStore::open(&temp_dir).unwrap());
 
-        let gateway = GatewayBuilder::new()
-            .with_event_store(store)
-            .build();
+        let gateway = GatewayBuilder::new().with_event_store(store).build();
 
         assert!(gateway.is_ok());
     }

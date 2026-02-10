@@ -146,7 +146,11 @@ pub struct Workflow {
 impl Workflow {
     /// Create a new workflow.
     #[must_use]
-    pub fn new(id: impl Into<String>, name: impl Into<String>, start_node: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        name: impl Into<String>,
+        start_node: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             name: name.into(),
@@ -206,7 +210,9 @@ impl WorkflowEngine {
     /// Create a new workflow engine.
     #[must_use]
     pub fn new() -> Self {
-        Self { max_iterations: 1000 }
+        Self {
+            max_iterations: 1000,
+        }
     }
 
     /// Set maximum iterations (cycle protection).

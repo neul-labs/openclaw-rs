@@ -72,8 +72,9 @@ impl NodeEventStore {
             .get_events(&SessionKey::new(&session_key))
             .map_err(|e| OpenClawError::event_store_error(format!("Query error: {e}")))?;
 
-        serde_json::to_string(&events)
-            .map_err(|e| OpenClawError::event_store_error(format!("Serialization error: {e}")).into())
+        serde_json::to_string(&events).map_err(|e| {
+            OpenClawError::event_store_error(format!("Serialization error: {e}")).into()
+        })
     }
 
     /// Get the session projection as JSON.
@@ -87,8 +88,9 @@ impl NodeEventStore {
             .get_projection(&SessionKey::new(&session_key))
             .map_err(|e| OpenClawError::event_store_error(format!("Projection error: {e}")))?;
 
-        serde_json::to_string(&projection)
-            .map_err(|e| OpenClawError::event_store_error(format!("Serialization error: {e}")).into())
+        serde_json::to_string(&projection).map_err(|e| {
+            OpenClawError::event_store_error(format!("Serialization error: {e}")).into()
+        })
     }
 
     /// List all session keys.
@@ -115,20 +117,11 @@ impl NodeEventStore {
 }
 
 /// Parse event type string into SessionEventKind.
-fn parse_event_kind(
-    event_type: &str,
-    data: &serde_json::Value,
-) -> Result<SessionEventKind> {
+fn parse_event_kind(event_type: &str, data: &serde_json::Value) -> Result<SessionEventKind> {
     match event_type {
         "session_started" => Ok(SessionEventKind::SessionStarted {
-            channel: data["channel"]
-                .as_str()
-                .unwrap_or("unknown")
-                .to_string(),
-            peer_id: data["peer_id"]
-                .as_str()
-                .unwrap_or("unknown")
-                .to_string(),
+            channel: data["channel"].as_str().unwrap_or("unknown").to_string(),
+            peer_id: data["peer_id"].as_str().unwrap_or("unknown").to_string(),
         }),
         "message_received" => Ok(SessionEventKind::MessageReceived {
             content: data["content"].as_str().unwrap_or("").to_string(),
@@ -149,10 +142,7 @@ fn parse_event_kind(
             },
         }),
         "session_ended" => Ok(SessionEventKind::SessionEnded {
-            reason: data["reason"]
-                .as_str()
-                .unwrap_or("unknown")
-                .to_string(),
+            reason: data["reason"].as_str().unwrap_or("unknown").to_string(),
         }),
         "state_changed" => Ok(SessionEventKind::StateChanged {
             key: data["key"].as_str().unwrap_or("").to_string(),
@@ -167,8 +157,8 @@ fn parse_event_kind(
             result: data.get("result").cloned().unwrap_or_default(),
             success: data["success"].as_bool().unwrap_or(true),
         }),
-        _ => Err(OpenClawError::event_store_error(format!(
-            "Unknown event type: {event_type}"
-        )).into()),
+        _ => Err(
+            OpenClawError::event_store_error(format!("Unknown event type: {event_type}")).into(),
+        ),
     }
 }

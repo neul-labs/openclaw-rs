@@ -119,7 +119,10 @@ impl ToolRegistry {
         name: &str,
         params: serde_json::Value,
     ) -> Result<ToolResult, ToolError> {
-        let tool = self.tools.get(name).ok_or_else(|| ToolError::NotFound(name.to_string()))?;
+        let tool = self
+            .tools
+            .get(name)
+            .ok_or_else(|| ToolError::NotFound(name.to_string()))?;
         tool.execute(params).await
     }
 
@@ -201,8 +204,9 @@ impl Tool for BashTool {
             .ok_or_else(|| ToolError::InvalidParams("Missing 'command' parameter".to_string()))?;
 
         // Execute in sandbox
-        let output = crate::sandbox::execute_sandboxed("bash", &["-c", command], &self.sandbox_config)
-            .map_err(|e| ToolError::ExecutionFailed(e.to_string()))?;
+        let output =
+            crate::sandbox::execute_sandboxed("bash", &["-c", command], &self.sandbox_config)
+                .map_err(|e| ToolError::ExecutionFailed(e.to_string()))?;
 
         if output.exit_code == 0 {
             Ok(ToolResult::success(output.stdout))

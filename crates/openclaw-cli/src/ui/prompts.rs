@@ -1,7 +1,7 @@
 //! Interactive prompt utilities.
 
 use console::style;
-use dialoguer::{theme::ColorfulTheme, Confirm, Input, Password, Select};
+use dialoguer::{Confirm, Input, Password, Select, theme::ColorfulTheme};
 
 /// Get the default colorful theme.
 fn theme() -> ColorfulTheme {
@@ -70,10 +70,7 @@ pub fn select<T: ToString>(prompt: &str, options: &[T]) -> Result<usize, dialogu
 }
 
 /// Prompt for selection with descriptions.
-pub fn select_with_help(
-    prompt: &str,
-    options: &[(&str, &str)],
-) -> Result<usize, dialoguer::Error> {
+pub fn select_with_help(prompt: &str, options: &[(&str, &str)]) -> Result<usize, dialoguer::Error> {
     let items: Vec<String> = options
         .iter()
         .map(|(name, desc)| format!("{} - {}", style(name).bold(), style(desc).dim()))
@@ -89,10 +86,7 @@ pub fn select_with_help(
 /// Print a risk acknowledgement prompt for onboarding.
 pub fn risk_acknowledgement() -> Result<bool, dialoguer::Error> {
     println!();
-    println!(
-        "{}",
-        style("⚠️  Important Security Notice").yellow().bold()
-    );
+    println!("{}", style("⚠️  Important Security Notice").yellow().bold());
     println!();
     println!("OpenClaw is a powerful AI agent platform that can:");
     println!("  • Execute arbitrary code on your system");
@@ -101,7 +95,9 @@ pub fn risk_acknowledgement() -> Result<bool, dialoguer::Error> {
     println!();
     println!(
         "For more information, see: {}",
-        style("https://docs.openclaw.ai/security").cyan().underlined()
+        style("https://docs.openclaw.ai/security")
+            .cyan()
+            .underlined()
     );
     println!();
 

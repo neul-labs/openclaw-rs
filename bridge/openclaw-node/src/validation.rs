@@ -16,12 +16,8 @@ use openclaw_core::types::{AgentId, ChannelId, PeerId, PeerType, SessionKey};
 pub fn validate_message(content: String, max_length: Option<u32>) -> String {
     let max_len = max_length.unwrap_or(100_000) as usize;
     match openclaw_core::validation::validate_message_content(&content, max_len) {
-        Ok(sanitized) => {
-            serde_json::json!({"valid": true, "sanitized": sanitized}).to_string()
-        }
-        Err(e) => {
-            serde_json::json!({"valid": false, "error": e.to_string()}).to_string()
-        }
+        Ok(sanitized) => serde_json::json!({"valid": true, "sanitized": sanitized}).to_string(),
+        Err(e) => serde_json::json!({"valid": false, "error": e.to_string()}).to_string(),
     }
 }
 

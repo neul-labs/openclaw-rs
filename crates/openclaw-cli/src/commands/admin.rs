@@ -2,9 +2,7 @@
 
 use std::path::PathBuf;
 
-use openclaw_gateway::auth::{
-    setup::generate_password, AuthConfig, User, UserRole, UserStore,
-};
+use openclaw_gateway::auth::{AuthConfig, User, UserRole, UserStore, setup::generate_password};
 
 use crate::ui;
 
@@ -54,7 +52,8 @@ pub async fn run_admin(args: AdminArgs) -> anyhow::Result<()> {
     std::fs::create_dir_all(&data_dir)?;
 
     // Open user store
-    let store = UserStore::open(&data_dir).map_err(|e| anyhow::anyhow!("Failed to open user store: {}", e))?;
+    let store = UserStore::open(&data_dir)
+        .map_err(|e| anyhow::anyhow!("Failed to open user store: {}", e))?;
 
     match args.action {
         AdminAction::Create {
@@ -93,9 +92,12 @@ fn create_user(
     gen_pwd: bool,
 ) -> anyhow::Result<()> {
     // Parse role
-    let role: UserRole = role_str
-        .parse()
-        .map_err(|_| anyhow::anyhow!("Invalid role: {}. Use: admin, operator, or viewer", role_str))?;
+    let role: UserRole = role_str.parse().map_err(|_| {
+        anyhow::anyhow!(
+            "Invalid role: {}. Use: admin, operator, or viewer",
+            role_str
+        )
+    })?;
 
     // Get or generate password
     let password = if gen_pwd {
@@ -103,9 +105,9 @@ fn create_user(
         ui::success(&format!("Generated password: {}", pwd));
         pwd
     } else {
-        password
-            .map(String::from)
-            .ok_or_else(|| anyhow::anyhow!("Password required. Use --password or --generate-password"))?
+        password.map(String::from).ok_or_else(|| {
+            anyhow::anyhow!("Password required. Use --password or --generate-password")
+        })?
     };
 
     // Create user
@@ -116,10 +118,7 @@ fn create_user(
         .create(&user)
         .map_err(|e| anyhow::anyhow!("Failed to save user: {}", e))?;
 
-    ui::success(&format!(
-        "Created user '{}' with role '{}'",
-        username, role
-    ));
+    ui::success(&format!("Created user '{}' with role '{}'", username, role));
 
     Ok(())
 }
@@ -131,13 +130,18 @@ fn list_users(store: &UserStore) -> anyhow::Result<()> {
 
     if users.is_empty() {
         ui::info("No users configured.");
-        ui::info("Run 'openclaw admin create --username admin --generate-password' to create an admin user.");
+        ui::info(
+            "Run 'openclaw admin create --username admin --generate-password' to create an admin user.",
+        );
         return Ok(());
     }
 
     ui::info(&format!("Users ({}):", users.len()));
     println!();
-    println!("{:<20} {:<10} {:<8} {:<24}", "USERNAME", "ROLE", "ACTIVE", "CREATED");
+    println!(
+        "{:<20} {:<10} {:<8} {:<24}",
+        "USERNAME", "ROLE", "ACTIVE", "CREATED"
+    );
     println!("{}", "-".repeat(65));
 
     for user in users {
@@ -203,7 +207,10 @@ fn delete_user(store: &UserStore, username: &str) -> anyhow::Result<()> {
         .list()
         .map_err(|e| anyhow::anyhow!("Failed to list users: {}", e))?;
 
-    let admin_count = users.iter().filter(|u| u.role.is_admin() && u.active).count();
+    let admin_count = users
+        .iter()
+        .filter(|u| u.role.is_admin() && u.active)
+        .count();
 
     if user.role.is_admin() && admin_count <= 1 {
         return Err(anyhow::anyhow!("Cannot delete the last admin user"));

@@ -237,9 +237,9 @@ impl WasmPlugin {
         }
 
         // Try to get metadata from plugin
-        if let Ok(get_name) =
-            self.instance
-                .get_typed_func::<(), i32>(&mut self.store, "plugin_get_name")
+        if let Ok(get_name) = self
+            .instance
+            .get_typed_func::<(), i32>(&mut self.store, "plugin_get_name")
         {
             let _ = get_name.call(&mut self.store, ());
             if !self.store.data().result_buffer.is_empty() {
@@ -250,9 +250,9 @@ impl WasmPlugin {
             }
         }
 
-        if let Ok(get_version) =
-            self.instance
-                .get_typed_func::<(), i32>(&mut self.store, "plugin_get_version")
+        if let Ok(get_version) = self
+            .instance
+            .get_typed_func::<(), i32>(&mut self.store, "plugin_get_version")
         {
             let _ = get_version.call(&mut self.store, ());
             if !self.store.data().result_buffer.is_empty() {
@@ -277,11 +277,7 @@ impl WasmPlugin {
     /// # Errors
     ///
     /// Returns error if function doesn't exist or execution fails.
-    pub fn call_export(
-        &mut self,
-        method: &str,
-        params: &[u8],
-    ) -> Result<Vec<u8>, PluginError> {
+    pub fn call_export(&mut self, method: &str, params: &[u8]) -> Result<Vec<u8>, PluginError> {
         // Get memory and allocator
         let memory = self
             .instance

@@ -59,7 +59,12 @@ struct StoredTool {
     description: String,
     input_schema: serde_json::Value,
     // We store the threadsafe function for execution
-    execute_fn: Option<napi::threadsafe_function::ThreadsafeFunction<serde_json::Value, napi::threadsafe_function::ErrorStrategy::Fatal>>,
+    execute_fn: Option<
+        napi::threadsafe_function::ThreadsafeFunction<
+            serde_json::Value,
+            napi::threadsafe_function::ErrorStrategy::Fatal,
+        >,
+    >,
 }
 
 /// Tool registry for managing and executing tools.
@@ -106,10 +111,9 @@ impl ToolRegistry {
         name: String,
         description: String,
         input_schema: serde_json::Value,
-        #[napi(ts_arg_type = "(params: any) => Promise<JsToolResult>")]
-        execute_fn: JsFunction,
+        #[napi(ts_arg_type = "(params: any) => Promise<JsToolResult>")] execute_fn: JsFunction,
     ) -> Result<()> {
-        use napi::threadsafe_function::{ThreadsafeFunction, ErrorStrategy};
+        use napi::threadsafe_function::{ErrorStrategy, ThreadsafeFunction};
 
         let tsfn: ThreadsafeFunction<serde_json::Value, ErrorStrategy::Fatal> =
             execute_fn.create_threadsafe_function(0, |ctx| Ok(vec![ctx.value]))?;
@@ -129,7 +133,9 @@ impl ToolRegistry {
                 let mut guard = tools.write().await;
                 guard.insert(name, tool);
             });
-        }).join().map_err(|_| OpenClawError::tool_error("Failed to register tool"))?;
+        })
+        .join()
+        .map_err(|_| OpenClawError::tool_error("Failed to register tool"))?;
 
         Ok(())
     }
@@ -185,11 +191,14 @@ impl ToolRegistry {
     #[napi]
     pub async fn get_all(&self) -> Vec<JsToolDefinition> {
         let tools = self.tools.read().await;
-        tools.values().map(|t| JsToolDefinition {
-            name: t.name.clone(),
-            description: t.description.clone(),
-            input_schema: t.input_schema.clone(),
-        }).collect()
+        tools
+            .values()
+            .map(|t| JsToolDefinition {
+                name: t.name.clone(),
+                description: t.description.clone(),
+                input_schema: t.input_schema.clone(),
+            })
+            .collect()
     }
 
     /// Check if a tool is registered.

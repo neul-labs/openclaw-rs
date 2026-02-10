@@ -4,11 +4,11 @@
 //! Assets are embedded at compile time using rust-embed.
 
 use axum::{
+    Router,
     extract::Path,
-    http::{header, StatusCode},
+    http::{StatusCode, header},
     response::{IntoResponse, Response},
     routing::get,
-    Router,
 };
 use rust_embed::Embed;
 use std::net::SocketAddr;

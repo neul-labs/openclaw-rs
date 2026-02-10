@@ -71,7 +71,11 @@ pub struct AuthProfile {
 impl AuthProfile {
     /// Create a new auth profile.
     #[must_use]
-    pub fn new(id: impl Into<String>, profile_type: ProfileType, target: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        profile_type: ProfileType,
+        target: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             profile_type,
@@ -129,9 +133,7 @@ impl OAuthToken {
     /// Check if the token is expired.
     #[must_use]
     pub fn is_expired(&self) -> bool {
-        self.expires_at
-            .map(|exp| exp < Utc::now())
-            .unwrap_or(false)
+        self.expires_at.map(|exp| exp < Utc::now()).unwrap_or(false)
     }
 
     /// Check if the token needs refresh (expires within 5 minutes).
@@ -208,7 +210,11 @@ impl AuthCredentialStore {
     /// # Errors
     ///
     /// Returns error if storage fails.
-    pub fn store_oauth_token(&mut self, profile_id: &str, token: &OAuthToken) -> Result<(), AuthError> {
+    pub fn store_oauth_token(
+        &mut self,
+        profile_id: &str,
+        token: &OAuthToken,
+    ) -> Result<(), AuthError> {
         let token_json = serde_json::to_string(token)?;
         let key = ApiKey::new(token_json);
         self.inner.store(&format!("{profile_id}_oauth"), &key)?;

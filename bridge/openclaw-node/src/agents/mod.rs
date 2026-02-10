@@ -2,4 +2,4 @@
 
 mod tools;
 
-pub use tools::{JsToolResult, JsToolDefinition, ToolRegistry};
+pub use tools::{JsToolDefinition, JsToolResult, ToolRegistry};

@@ -9,7 +9,7 @@
 
 #![allow(unsafe_code)]
 
-use std::ffi::{c_char, c_int, CStr};
+use std::ffi::{CStr, c_char, c_int};
 use std::path::{Path, PathBuf};
 
 use async_trait::async_trait;
@@ -205,11 +205,7 @@ impl NativePlugin {
     }
 
     /// Execute a hook.
-    fn execute_hook_internal(
-        &self,
-        hook_id: i32,
-        data: &[u8],
-    ) -> Result<Vec<u8>, PluginError> {
+    fn execute_hook_internal(&self, hook_id: i32, data: &[u8]) -> Result<Vec<u8>, PluginError> {
         let execute = self
             .execute_hook_fn
             .ok_or_else(|| PluginError::ExecutionError("No execute_hook export".to_string()))?;

@@ -58,8 +58,12 @@ impl CredentialStore {
         if key_bytes.len() != 32 {
             return Err(OpenClawError::new(
                 "INVALID_KEY",
-                format!("Encryption key must be 32 bytes (64 hex chars), got {}", key_bytes.len()),
-            ).into());
+                format!(
+                    "Encryption key must be 32 bytes (64 hex chars), got {}",
+                    key_bytes.len()
+                ),
+            )
+            .into());
         }
 
         let mut key = [0u8; 32];

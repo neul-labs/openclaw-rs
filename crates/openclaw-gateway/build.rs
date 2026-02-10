@@ -75,7 +75,9 @@ fn main() {
     } else {
         // Check if any source files are newer than dist
         // For simplicity, we always rebuild in release mode
-        std::env::var("PROFILE").map(|p| p == "release").unwrap_or(false)
+        std::env::var("PROFILE")
+            .map(|p| p == "release")
+            .unwrap_or(false)
             || !dist_dir.join("index.html").exists()
     };
 

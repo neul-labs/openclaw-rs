@@ -4,8 +4,8 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use std::pin::Pin;
 use openclaw_core::types::TokenUsage;
+use std::pin::Pin;
 
 /// Provider errors.
 #[derive(Error, Debug)]
@@ -227,11 +227,17 @@ pub trait Provider: Send + Sync {
     async fn list_models(&self) -> Result<Vec<String>, ProviderError>;
 
     /// Create a completion.
-    async fn complete(&self, request: CompletionRequest) -> Result<CompletionResponse, ProviderError>;
+    async fn complete(
+        &self,
+        request: CompletionRequest,
+    ) -> Result<CompletionResponse, ProviderError>;
 
     /// Create a streaming completion.
     async fn complete_stream(
         &self,
         request: CompletionRequest,
-    ) -> Result<Pin<Box<dyn futures::Stream<Item = Result<StreamingChunk, ProviderError>> + Send>>, ProviderError>;
+    ) -> Result<
+        Pin<Box<dyn futures::Stream<Item = Result<StreamingChunk, ProviderError>> + Send>>,
+        ProviderError,
+    >;
 }

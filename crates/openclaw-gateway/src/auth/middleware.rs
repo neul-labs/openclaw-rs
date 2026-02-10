@@ -3,19 +3,19 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::{FromRef, FromRequestParts},
-    http::{header::AUTHORIZATION, request::Parts, StatusCode},
-    response::{IntoResponse, Response},
     Json,
+    extract::{FromRef, FromRequestParts},
+    http::{StatusCode, header::AUTHORIZATION, request::Parts},
+    response::{IntoResponse, Response},
 };
 use serde::Serialize;
 use tokio::sync::RwLock;
 
+use super::AuthError;
 use super::config::AuthConfig;
 use super::jwt::{Claims, JwtManager};
 use super::setup::BootstrapManager;
 use super::users::{UserRole, UserStore};
-use super::AuthError;
 
 /// Shared authentication state.
 pub struct AuthState {
@@ -46,7 +46,10 @@ impl AuthState {
     /// # Errors
     ///
     /// Returns error if initialization fails.
-    pub fn initialize(mut config: AuthConfig, data_dir: &std::path::Path) -> Result<Self, AuthError> {
+    pub fn initialize(
+        mut config: AuthConfig,
+        data_dir: &std::path::Path,
+    ) -> Result<Self, AuthError> {
         // Open user store
         let users = UserStore::open(data_dir)?;
 
@@ -164,7 +167,9 @@ impl IntoResponse for AuthError {
             AuthError::TokenError(_) => (StatusCode::UNAUTHORIZED, "invalid_token"),
             AuthError::PermissionDenied(_) => (StatusCode::FORBIDDEN, "permission_denied"),
             AuthError::SetupRequired => (StatusCode::SERVICE_UNAVAILABLE, "setup_required"),
-            AuthError::InvalidBootstrapToken => (StatusCode::UNAUTHORIZED, "invalid_bootstrap_token"),
+            AuthError::InvalidBootstrapToken => {
+                (StatusCode::UNAUTHORIZED, "invalid_bootstrap_token")
+            }
             AuthError::UserNotFound(_) => (StatusCode::NOT_FOUND, "user_not_found"),
             AuthError::UserExists(_) => (StatusCode::CONFLICT, "user_exists"),
             AuthError::Storage(_) | AuthError::Config(_) => {
@@ -280,7 +285,7 @@ where
 
         if !auth.is_admin() {
             return Err(
-                AuthError::PermissionDenied("Admin role required".to_string()).into_response()
+                AuthError::PermissionDenied("Admin role required".to_string()).into_response(),
             );
         }
 

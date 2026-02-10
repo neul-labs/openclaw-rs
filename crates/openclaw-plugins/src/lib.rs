@@ -6,17 +6,17 @@
 
 /// Plugin API traits and types.
 pub mod api;
-/// Plugin registry.
-pub mod registry;
 /// TypeScript plugin bridge.
 pub mod bridge;
-/// WASM plugin runtime.
-pub mod wasm;
 /// Native plugin FFI.
 pub mod native;
+/// Plugin registry.
+pub mod registry;
+/// WASM plugin runtime.
+pub mod wasm;
 
-pub use api::{Plugin, PluginApi, PluginHook, PluginError};
-pub use registry::PluginRegistry;
-pub use bridge::{TsPluginBridge, SkillManifest, SkillEntry, PluginInfo, discover_plugins};
-pub use wasm::{WasmPlugin, WasmPluginMetadata, WasmPluginManager};
+pub use api::{Plugin, PluginApi, PluginError, PluginHook};
+pub use bridge::{PluginInfo, SkillEntry, SkillManifest, TsPluginBridge, discover_plugins};
 pub use native::{NativePlugin, NativePluginInfo, NativePluginManager, discover_native_plugins};
+pub use registry::PluginRegistry;
+pub use wasm::{WasmPlugin, WasmPluginManager, WasmPluginMetadata};

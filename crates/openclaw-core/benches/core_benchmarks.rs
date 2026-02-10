@@ -2,7 +2,7 @@
 //!
 //! Run with: cargo bench -p openclaw-core
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
 use openclaw_core::events::{EventStore, SessionEvent, SessionEventKind};
 use openclaw_core::types::{AgentId, ChannelId, PeerId, PeerType, SessionKey};
 use tempfile::TempDir;
@@ -106,9 +106,7 @@ fn bench_projection_read(c: &mut Criterion) {
     }
 
     c.bench_function("projection_read", |b| {
-        b.iter(|| {
-            store.get_projection(black_box(&session_key)).unwrap()
-        });
+        b.iter(|| store.get_projection(black_box(&session_key)).unwrap());
     });
 }
 
@@ -150,9 +148,7 @@ fn bench_event_serialization(c: &mut Criterion) {
     let serialized = serde_json::to_vec(&event).unwrap();
 
     c.bench_function("event_deserialize", |b| {
-        b.iter(|| {
-            serde_json::from_slice::<SessionEvent>(black_box(&serialized)).unwrap()
-        });
+        b.iter(|| serde_json::from_slice::<SessionEvent>(black_box(&serialized)).unwrap());
     });
 }
 
