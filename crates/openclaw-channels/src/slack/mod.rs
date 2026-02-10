@@ -51,7 +51,7 @@ impl SlackChannel {
         method: &str,
         params: Option<&impl Serialize>,
     ) -> Result<T, ChannelError> {
-        let url = format!("{}/{}", SLACK_API_BASE, method);
+        let url = format!("{SLACK_API_BASE}/{method}");
 
         let mut request = self
             .client
@@ -74,7 +74,7 @@ impl SlackChannel {
                 return Err(ChannelError::RateLimited);
             }
             let text = response.text().await.unwrap_or_default();
-            return Err(ChannelError::Network(format!("{}: {}", status, text)));
+            return Err(ChannelError::Network(format!("{status}: {text}")));
         }
 
         let result: SlackResponse<T> = response
@@ -94,11 +94,11 @@ impl SlackChannel {
 
 #[async_trait]
 impl Channel for SlackChannel {
-    fn id(&self) -> &str {
+    fn id(&self) -> &'static str {
         "slack"
     }
 
-    fn label(&self) -> &str {
+    fn label(&self) -> &'static str {
         "Slack"
     }
 
@@ -395,7 +395,7 @@ struct SlackAttachment {
 /// Slack Events API event wrapper.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SlackEvent {
-    /// Event type (always "event_callback" for events).
+    /// Event type (always "`event_callback`" for events).
     #[serde(rename = "type")]
     pub event_type: String,
     /// Team ID.
@@ -424,7 +424,7 @@ pub struct SlackMessageEvent {
     pub thread_ts: Option<String>,
     /// Attached files.
     pub files: Option<Vec<SlackFile>>,
-    /// Message subtype (e.g., "bot_message").
+    /// Message subtype (e.g., "`bot_message`").
     pub subtype: Option<String>,
 }
 

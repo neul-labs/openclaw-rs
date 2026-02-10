@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 /// in JavaScript code with error codes, status, and retry hints.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OpenClawError {
-    /// Error code for programmatic handling (e.g., "PROVIDER_ERROR", "AUTH_ERROR")
+    /// Error code for programmatic handling (e.g., "`PROVIDER_ERROR`", "`AUTH_ERROR`")
     pub code: String,
     /// Human-readable error message
     pub message: String,
@@ -33,6 +33,7 @@ impl OpenClawError {
     }
 
     /// Create an error from a provider error.
+    #[must_use]
     pub fn from_provider_error(e: openclaw_providers::ProviderError) -> Self {
         use openclaw_providers::ProviderError;
 
@@ -76,6 +77,7 @@ impl OpenClawError {
     }
 
     /// Create an error from a credential error.
+    #[must_use]
     pub fn from_credential_error(e: openclaw_core::secrets::CredentialError) -> Self {
         use openclaw_core::secrets::CredentialError;
 
@@ -134,11 +136,11 @@ impl From<OpenClawError> for napi::Error {
     fn from(e: OpenClawError) -> Self {
         // Serialize the full error as JSON for structured handling in JS
         let json = serde_json::to_string(&e).unwrap_or_else(|_| e.message.clone());
-        napi::Error::from_reason(json)
+        Self::from_reason(json)
     }
 }
 
-/// Helper to convert any error to a napi::Error with an OpenClawError.
+/// Helper to convert any error to a `napi::Error` with an `OpenClawError`.
 pub fn to_napi_error(code: &str, e: impl std::fmt::Display) -> napi::Error {
     OpenClawError::new(code, e.to_string()).into()
 }

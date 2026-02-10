@@ -45,6 +45,7 @@ impl Default for UiServerConfig {
 
 impl UiServerConfig {
     /// Create a new UI server config with custom port.
+    #[must_use]
     pub fn with_port(port: u16) -> Self {
         Self {
             port,
@@ -53,6 +54,7 @@ impl UiServerConfig {
     }
 
     /// Get the full address string.
+    #[must_use]
     pub fn address(&self) -> String {
         format!("{}:{}", self.bind_address, self.port)
     }
@@ -75,57 +77,54 @@ async fn serve_static(Path(path): Path<String>) -> Response {
 /// falls back to serving index.html for SPA routing support.
 async fn serve_file(path: &str) -> Response {
     // Try to get the file from embedded assets
-    match UiAssets::get(path) {
-        Some(content) => {
-            // Determine MIME type from file extension
-            let mime = mime_guess::from_path(path).first_or_octet_stream();
+    if let Some(content) = UiAssets::get(path) {
+        // Determine MIME type from file extension
+        let mime = mime_guess::from_path(path).first_or_octet_stream();
 
-            // Set cache headers based on file type
-            let cache_control = if path.contains(".js")
-                || path.contains(".css")
-                || path.contains(".woff")
-                || path.contains(".woff2")
-            {
-                // Long cache for hashed assets
-                "public, max-age=31536000, immutable"
-            } else if path == "index.html" {
-                // No cache for index.html to ensure fresh content
-                "no-cache, no-store, must-revalidate"
-            } else {
-                // Short cache for other assets
-                "public, max-age=3600"
-            };
+        // Set cache headers based on file type
+        let cache_control = if path.contains(".js")
+            || path.contains(".css")
+            || path.contains(".woff")
+            || path.contains(".woff2")
+        {
+            // Long cache for hashed assets
+            "public, max-age=31536000, immutable"
+        } else if path == "index.html" {
+            // No cache for index.html to ensure fresh content
+            "no-cache, no-store, must-revalidate"
+        } else {
+            // Short cache for other assets
+            "public, max-age=3600"
+        };
 
-            (
-                StatusCode::OK,
-                [
-                    (header::CONTENT_TYPE, mime.as_ref()),
-                    (header::CACHE_CONTROL, cache_control),
-                ],
-                content.data.into_owned(),
-            )
-                .into_response()
-        }
-        None => {
-            // SPA fallback: serve index.html for non-file routes
-            // A route is considered a file if it contains a dot (e.g., .js, .css, .png)
-            if !path.contains('.') {
-                if let Some(index) = UiAssets::get("index.html") {
-                    return (
-                        StatusCode::OK,
-                        [
-                            (header::CONTENT_TYPE, "text/html"),
-                            (header::CACHE_CONTROL, "no-cache, no-store, must-revalidate"),
-                        ],
-                        index.data.into_owned(),
-                    )
-                        .into_response();
-                }
+        (
+            StatusCode::OK,
+            [
+                (header::CONTENT_TYPE, mime.as_ref()),
+                (header::CACHE_CONTROL, cache_control),
+            ],
+            content.data.into_owned(),
+        )
+            .into_response()
+    } else {
+        // SPA fallback: serve index.html for non-file routes
+        // A route is considered a file if it contains a dot (e.g., .js, .css, .png)
+        if !path.contains('.') {
+            if let Some(index) = UiAssets::get("index.html") {
+                return (
+                    StatusCode::OK,
+                    [
+                        (header::CONTENT_TYPE, "text/html"),
+                        (header::CACHE_CONTROL, "no-cache, no-store, must-revalidate"),
+                    ],
+                    index.data.into_owned(),
+                )
+                    .into_response();
             }
-
-            // File not found
-            (StatusCode::NOT_FOUND, "Not Found").into_response()
         }
+
+        // File not found
+        (StatusCode::NOT_FOUND, "Not Found").into_response()
     }
 }
 

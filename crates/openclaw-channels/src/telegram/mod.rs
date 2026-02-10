@@ -74,7 +74,7 @@ impl TelegramChannel {
                 return Err(ChannelError::RateLimited);
             }
             let text = response.text().await.unwrap_or_default();
-            return Err(ChannelError::Network(format!("{}: {}", status, text)));
+            return Err(ChannelError::Network(format!("{status}: {text}")));
         }
 
         let result: TelegramResponse<T> = response
@@ -98,11 +98,11 @@ impl TelegramChannel {
 
 #[async_trait]
 impl Channel for TelegramChannel {
-    fn id(&self) -> &str {
+    fn id(&self) -> &'static str {
         "telegram"
     }
 
-    fn label(&self) -> &str {
+    fn label(&self) -> &'static str {
         "Telegram"
     }
 
@@ -360,7 +360,7 @@ pub struct TelegramMessage {
     pub from: Option<TelegramUser>,
     pub text: Option<String>,
     pub caption: Option<String>,
-    pub reply_to_message: Option<Box<TelegramMessage>>,
+    pub reply_to_message: Option<Box<Self>>,
     pub message_thread_id: Option<i64>,
     pub photo: Option<Vec<TelegramPhotoSize>>,
     pub document: Option<TelegramDocument>,

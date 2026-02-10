@@ -5,7 +5,7 @@ use anyhow::Result;
 use std::path::PathBuf;
 
 /// Completion command arguments.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct CompletionArgs {
     /// Shell to generate completions for.
     pub shell: Option<String>,
@@ -15,23 +15,13 @@ pub struct CompletionArgs {
     pub write_state: bool,
 }
 
-impl Default for CompletionArgs {
-    fn default() -> Self {
-        Self {
-            shell: None,
-            install: false,
-            write_state: false,
-        }
-    }
-}
-
 /// Run the completion command.
 pub async fn run_completion(args: CompletionArgs) -> Result<()> {
     let shell = args.shell.as_deref().unwrap_or_else(|| detect_shell());
 
     if args.write_state {
         write_completion_cache(shell)?;
-        ui::success(&format!("Completion cache written for {}", shell));
+        ui::success(&format!("Completion cache written for {shell}"));
         return Ok(());
     }
 
@@ -42,7 +32,7 @@ pub async fn run_completion(args: CompletionArgs) -> Result<()> {
 
     // Print completion script to stdout
     let script = generate_completion(shell)?;
-    println!("{}", script);
+    println!("{script}");
 
     Ok(())
 }
@@ -72,7 +62,7 @@ fn generate_completion(shell: &str) -> Result<String> {
         "bash" => Ok(generate_bash_completion()),
         "fish" => Ok(generate_fish_completion()),
         "powershell" | "pwsh" => Ok(generate_powershell_completion()),
-        _ => anyhow::bail!("Unsupported shell: {}", shell),
+        _ => anyhow::bail!("Unsupported shell: {shell}"),
     }
 }
 
@@ -87,7 +77,7 @@ fn write_completion_cache(shell: &str) -> Result<()> {
         "bash" => "openclaw.bash",
         "fish" => "openclaw.fish",
         "powershell" | "pwsh" => "openclaw.ps1",
-        _ => anyhow::bail!("Unsupported shell: {}", shell),
+        _ => anyhow::bail!("Unsupported shell: {shell}"),
     };
 
     let path = completion_dir.join(filename);
@@ -121,7 +111,7 @@ fn install_completion(shell: &str) -> Result<()> {
             "\n# OpenClaw completion\n. \"{}/openclaw.ps1\"\n",
             completion_dir.display()
         ),
-        _ => anyhow::bail!("Unsupported shell: {}", shell),
+        _ => anyhow::bail!("Unsupported shell: {shell}"),
     };
 
     // Get profile path
@@ -154,9 +144,10 @@ fn install_completion(shell: &str) -> Result<()> {
 
 /// Get the completion directory.
 fn get_completion_dir() -> PathBuf {
-    dirs::home_dir()
-        .map(|h| h.join(".openclaw").join("completions"))
-        .unwrap_or_else(|| PathBuf::from(".openclaw/completions"))
+    dirs::home_dir().map_or_else(
+        || PathBuf::from(".openclaw/completions"),
+        |h| h.join(".openclaw").join("completions"),
+    )
 }
 
 /// Get the shell profile path.
@@ -186,7 +177,7 @@ fn get_profile_path(shell: &str) -> Result<PathBuf> {
                 home.join(".config/powershell/Microsoft.PowerShell_profile.ps1")
             }
         }
-        _ => anyhow::bail!("Unsupported shell: {}", shell),
+        _ => anyhow::bail!("Unsupported shell: {shell}"),
     })
 }
 
@@ -351,7 +342,7 @@ complete -c openclaw -s h -l help -d "Show help"
     .to_string()
 }
 
-/// Generate PowerShell completion script.
+/// Generate `PowerShell` completion script.
 fn generate_powershell_completion() -> String {
     r#"Register-ArgumentCompleter -Native -CommandName openclaw -ScriptBlock {
     param($wordToComplete, $commandAst, $cursorPosition)

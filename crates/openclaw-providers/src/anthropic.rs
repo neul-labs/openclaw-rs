@@ -92,7 +92,7 @@ impl AnthropicProvider {
 
 #[async_trait]
 impl Provider for AnthropicProvider {
-    fn name(&self) -> &str {
+    fn name(&self) -> &'static str {
         "anthropic"
     }
 
@@ -321,22 +321,20 @@ struct AnthropicDelta {
 impl From<ContentBlock> for AnthropicContentBlock {
     fn from(block: ContentBlock) -> Self {
         match block {
-            ContentBlock::Text { text } => AnthropicContentBlock::Text { text },
-            ContentBlock::Image { source } => AnthropicContentBlock::Image {
+            ContentBlock::Text { text } => Self::Text { text },
+            ContentBlock::Image { source } => Self::Image {
                 source: ImageSourceApi {
                     source_type: source.source_type,
                     media_type: source.media_type,
                     data: source.data,
                 },
             },
-            ContentBlock::ToolUse { id, name, input } => {
-                AnthropicContentBlock::ToolUse { id, name, input }
-            }
+            ContentBlock::ToolUse { id, name, input } => Self::ToolUse { id, name, input },
             ContentBlock::ToolResult {
                 tool_use_id,
                 content,
                 ..
-            } => AnthropicContentBlock::ToolResult {
+            } => Self::ToolResult {
                 tool_use_id,
                 content,
             },
@@ -347,21 +345,19 @@ impl From<ContentBlock> for AnthropicContentBlock {
 impl From<AnthropicContentBlock> for ContentBlock {
     fn from(block: AnthropicContentBlock) -> Self {
         match block {
-            AnthropicContentBlock::Text { text } => ContentBlock::Text { text },
-            AnthropicContentBlock::Image { source } => ContentBlock::Image {
+            AnthropicContentBlock::Text { text } => Self::Text { text },
+            AnthropicContentBlock::Image { source } => Self::Image {
                 source: crate::traits::ImageSource {
                     source_type: source.source_type,
                     media_type: source.media_type,
                     data: source.data,
                 },
             },
-            AnthropicContentBlock::ToolUse { id, name, input } => {
-                ContentBlock::ToolUse { id, name, input }
-            }
+            AnthropicContentBlock::ToolUse { id, name, input } => Self::ToolUse { id, name, input },
             AnthropicContentBlock::ToolResult {
                 tool_use_id,
                 content,
-            } => ContentBlock::ToolResult {
+            } => Self::ToolResult {
                 tool_use_id,
                 content,
                 is_error: None,

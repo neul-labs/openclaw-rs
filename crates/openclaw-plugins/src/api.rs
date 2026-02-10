@@ -87,7 +87,7 @@ pub struct PluginApi {
 impl PluginApi {
     /// Create a new plugin API.
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {}
     }
 }

@@ -1,6 +1,6 @@
-//! # OpenClaw Providers
+//! # `OpenClaw` Providers
 //!
-//! AI provider clients for Anthropic, OpenAI, Google, Ollama, etc.
+//! AI provider clients for Anthropic, `OpenAI`, Google, Ollama, etc.
 
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]

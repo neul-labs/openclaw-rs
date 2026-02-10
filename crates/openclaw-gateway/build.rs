@@ -56,12 +56,12 @@ fn main() {
                 println!("cargo:warning=UI dependencies installed successfully");
             }
             Ok(s) => {
-                println!("cargo:warning=npm install failed with status: {}", s);
+                println!("cargo:warning=npm install failed with status: {s}");
                 // Don't fail the build, just warn
                 return;
             }
             Err(e) => {
-                println!("cargo:warning=Failed to run npm install: {}", e);
+                println!("cargo:warning=Failed to run npm install: {e}");
                 println!("cargo:warning=Make sure Node.js and npm are installed");
                 return;
             }
@@ -70,15 +70,15 @@ fn main() {
 
     // Check if dist directory exists and is up to date
     let dist_dir = ui_dir.join("dist");
-    let should_build = if !dist_dir.exists() {
-        true
-    } else {
+    let should_build = if dist_dir.exists() {
         // Check if any source files are newer than dist
         // For simplicity, we always rebuild in release mode
         std::env::var("PROFILE")
             .map(|p| p == "release")
             .unwrap_or(false)
             || !dist_dir.join("index.html").exists()
+    } else {
+        true
     };
 
     if should_build {
@@ -94,11 +94,11 @@ fn main() {
                 println!("cargo:warning=UI built successfully");
             }
             Ok(s) => {
-                println!("cargo:warning=npm run build failed with status: {}", s);
+                println!("cargo:warning=npm run build failed with status: {s}");
                 // Don't fail the build, just warn
             }
             Err(e) => {
-                println!("cargo:warning=Failed to run npm build: {}", e);
+                println!("cargo:warning=Failed to run npm build: {e}");
             }
         }
     } else {

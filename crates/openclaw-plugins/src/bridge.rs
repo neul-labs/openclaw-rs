@@ -145,7 +145,7 @@ impl TsPluginBridge {
 
     /// Get the cached skill manifest.
     #[must_use]
-    pub fn skill_manifest(&self) -> Option<&SkillManifest> {
+    pub const fn skill_manifest(&self) -> Option<&SkillManifest> {
         self.manifest.as_ref()
     }
 
@@ -171,9 +171,8 @@ impl TsPluginBridge {
                     serde_json::from_value(resp.result.unwrap_or_default())
                         .map_err(|e| PluginError::Ipc(e.to_string()))?;
                 return Ok(manifest);
-            } else {
-                return Err(PluginError::Ipc(resp.error.unwrap_or_default()));
             }
+            return Err(PluginError::Ipc(resp.error.unwrap_or_default()));
         }
 
         Err(PluginError::Ipc("Invalid response".to_string()))
@@ -209,9 +208,8 @@ impl TsPluginBridge {
         if let openclaw_ipc::messages::IpcPayload::Response(resp) = response.payload {
             if resp.success {
                 return Ok(resp.result.unwrap_or_default());
-            } else {
-                return Err(PluginError::Ipc(resp.error.unwrap_or_default()));
             }
+            return Err(PluginError::Ipc(resp.error.unwrap_or_default()));
         }
 
         Err(PluginError::Ipc("Invalid response".to_string()))
@@ -247,9 +245,8 @@ impl TsPluginBridge {
         if let openclaw_ipc::messages::IpcPayload::Response(resp) = response.payload {
             if resp.success {
                 return Ok(resp.result.unwrap_or_default());
-            } else {
-                return Err(PluginError::Ipc(resp.error.unwrap_or_default()));
             }
+            return Err(PluginError::Ipc(resp.error.unwrap_or_default()));
         }
 
         Err(PluginError::Ipc("Invalid response".to_string()))
@@ -265,15 +262,15 @@ impl Drop for TsPluginBridge {
 /// Implement the Plugin trait so the bridge can be registered.
 #[async_trait]
 impl Plugin for TsPluginBridge {
-    fn id(&self) -> &str {
+    fn id(&self) -> &'static str {
         "ts-bridge"
     }
 
-    fn name(&self) -> &str {
+    fn name(&self) -> &'static str {
         "TypeScript Plugin Bridge"
     }
 
-    fn version(&self) -> &str {
+    fn version(&self) -> &'static str {
         env!("CARGO_PKG_VERSION")
     }
 
@@ -344,6 +341,7 @@ pub struct SkillEntry {
 /// Discover TypeScript plugins in a directory.
 ///
 /// Scans for directories containing `package.json` with an `openclaw` plugin entry.
+#[must_use]
 pub fn discover_plugins(plugins_dir: &Path) -> Vec<PluginInfo> {
     let mut plugins = Vec::new();
 
@@ -400,12 +398,10 @@ pub struct PluginInfo {
 
 /// Check if a command exists on PATH.
 fn which_exists(cmd: &str) -> bool {
-    std::env::var_os("PATH")
-        .map(|paths| {
-            std::env::split_paths(&paths)
-                .any(|dir| dir.join(cmd).exists() || dir.join(format!("{cmd}.exe")).exists())
-        })
-        .unwrap_or(false)
+    std::env::var_os("PATH").is_some_and(|paths| {
+        std::env::split_paths(&paths)
+            .any(|dir| dir.join(cmd).exists() || dir.join(format!("{cmd}.exe")).exists())
+    })
 }
 
 #[cfg(test)]

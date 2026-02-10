@@ -51,7 +51,7 @@ impl DiscordChannel {
         endpoint: &str,
         body: Option<&impl Serialize>,
     ) -> Result<T, ChannelError> {
-        let url = format!("{}{}", DISCORD_API_BASE, endpoint);
+        let url = format!("{DISCORD_API_BASE}{endpoint}");
 
         let mut request = self
             .client
@@ -74,7 +74,7 @@ impl DiscordChannel {
                 return Err(ChannelError::RateLimited);
             }
             let text = response.text().await.unwrap_or_default();
-            return Err(ChannelError::Network(format!("{}: {}", status, text)));
+            return Err(ChannelError::Network(format!("{status}: {text}")));
         }
 
         response
@@ -90,7 +90,7 @@ impl DiscordChannel {
         endpoint: &str,
         body: Option<&impl Serialize>,
     ) -> Result<(), ChannelError> {
-        let url = format!("{}{}", DISCORD_API_BASE, endpoint);
+        let url = format!("{DISCORD_API_BASE}{endpoint}");
 
         let mut request = self
             .client
@@ -113,7 +113,7 @@ impl DiscordChannel {
                 return Err(ChannelError::RateLimited);
             }
             let text = response.text().await.unwrap_or_default();
-            return Err(ChannelError::Network(format!("{}: {}", status, text)));
+            return Err(ChannelError::Network(format!("{status}: {text}")));
         }
 
         Ok(())
@@ -122,11 +122,11 @@ impl DiscordChannel {
 
 #[async_trait]
 impl Channel for DiscordChannel {
-    fn id(&self) -> &str {
+    fn id(&self) -> &'static str {
         "discord"
     }
 
-    fn label(&self) -> &str {
+    fn label(&self) -> &'static str {
         "Discord"
     }
 
@@ -212,7 +212,7 @@ impl ChannelOutbound for DiscordChannel {
             .await?;
 
         Ok(DeliveryResult {
-            message_id: result.id.clone(),
+            message_id: result.id,
             channel: ChannelId::discord(),
             timestamp: chrono::Utc::now(),
             chat_id: Some(ctx.chat_id),
@@ -264,7 +264,7 @@ impl ChannelOutbound for DiscordChannel {
             .await?;
 
         Ok(DeliveryResult {
-            message_id: result.id.clone(),
+            message_id: result.id,
             channel: ChannelId::discord(),
             timestamp: chrono::Utc::now(),
             chat_id: Some(ctx.chat_id),
@@ -319,19 +319,19 @@ impl ChannelInbound for DiscordChannel {
                 let kind = if a
                     .content_type
                     .as_ref()
-                    .map_or(false, |ct| ct.starts_with("image/"))
+                    .is_some_and(|ct| ct.starts_with("image/"))
                 {
                     AttachmentKind::Image
                 } else if a
                     .content_type
                     .as_ref()
-                    .map_or(false, |ct| ct.starts_with("video/"))
+                    .is_some_and(|ct| ct.starts_with("video/"))
                 {
                     AttachmentKind::Video
                 } else if a
                     .content_type
                     .as_ref()
-                    .map_or(false, |ct| ct.starts_with("audio/"))
+                    .is_some_and(|ct| ct.starts_with("audio/"))
                 {
                     AttachmentKind::Audio
                 } else {
@@ -359,8 +359,7 @@ impl ChannelInbound for DiscordChannel {
 
         // Parse timestamp
         let timestamp = chrono::DateTime::parse_from_rfc3339(&msg.timestamp)
-            .map(|dt| dt.with_timezone(&chrono::Utc))
-            .unwrap_or_else(|_| chrono::Utc::now());
+            .map_or_else(|_| chrono::Utc::now(), |dt| dt.with_timezone(&chrono::Utc));
 
         Ok(Message {
             id: msg.id.clone(),

@@ -1,4 +1,4 @@
-//! # OpenClaw Agents
+//! # `OpenClaw` Agents
 //!
 //! Agent runtime, workflow engine, and sandboxed execution.
 //!

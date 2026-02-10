@@ -91,6 +91,7 @@ pub struct ToolRegistry {
 impl ToolRegistry {
     /// Create a new empty tool registry.
     #[napi(constructor)]
+    #[must_use]
     pub fn new() -> Self {
         Self {
             tools: Arc::new(RwLock::new(HashMap::new())),
@@ -104,7 +105,7 @@ impl ToolRegistry {
     /// * `name` - Unique tool name
     /// * `description` - Human-readable description
     /// * `input_schema` - JSON schema for parameters
-    /// * `execute_fn` - Async function that takes params and returns JsToolResult
+    /// * `execute_fn` - Async function that takes params and returns `JsToolResult`
     #[napi]
     pub fn register_callback(
         &self,

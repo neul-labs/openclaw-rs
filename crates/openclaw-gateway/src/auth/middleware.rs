@@ -54,15 +54,14 @@ impl AuthState {
         let users = UserStore::open(data_dir)?;
 
         // Generate or load JWT secret
-        let jwt_secret = match &config.jwt_secret {
-            Some(secret) => secret.clone(),
-            None => {
-                let secret = JwtManager::generate_hex_secret();
-                config.jwt_secret = Some(secret.clone());
-                // In a real implementation, we'd persist this to config
-                tracing::info!("Generated new JWT secret");
-                secret
-            }
+        let jwt_secret = if let Some(secret) = &config.jwt_secret {
+            secret.clone()
+        } else {
+            let secret = JwtManager::generate_hex_secret();
+            config.jwt_secret = Some(secret.clone());
+            // In a real implementation, we'd persist this to config
+            tracing::info!("Generated new JWT secret");
+            secret
         };
 
         let jwt = JwtManager::from_hex_secret(
@@ -127,7 +126,7 @@ impl RequireAuth {
 
     /// Get the user role.
     #[must_use]
-    pub fn role(&self) -> UserRole {
+    pub const fn role(&self) -> UserRole {
         self.claims.role
     }
 
@@ -163,16 +162,14 @@ struct AuthErrorResponse {
 impl IntoResponse for AuthError {
     fn into_response(self) -> Response {
         let (status, code) = match &self {
-            AuthError::InvalidCredentials => (StatusCode::UNAUTHORIZED, "invalid_credentials"),
-            AuthError::TokenError(_) => (StatusCode::UNAUTHORIZED, "invalid_token"),
-            AuthError::PermissionDenied(_) => (StatusCode::FORBIDDEN, "permission_denied"),
-            AuthError::SetupRequired => (StatusCode::SERVICE_UNAVAILABLE, "setup_required"),
-            AuthError::InvalidBootstrapToken => {
-                (StatusCode::UNAUTHORIZED, "invalid_bootstrap_token")
-            }
-            AuthError::UserNotFound(_) => (StatusCode::NOT_FOUND, "user_not_found"),
-            AuthError::UserExists(_) => (StatusCode::CONFLICT, "user_exists"),
-            AuthError::Storage(_) | AuthError::Config(_) => {
+            Self::InvalidCredentials => (StatusCode::UNAUTHORIZED, "invalid_credentials"),
+            Self::TokenError(_) => (StatusCode::UNAUTHORIZED, "invalid_token"),
+            Self::PermissionDenied(_) => (StatusCode::FORBIDDEN, "permission_denied"),
+            Self::SetupRequired => (StatusCode::SERVICE_UNAVAILABLE, "setup_required"),
+            Self::InvalidBootstrapToken => (StatusCode::UNAUTHORIZED, "invalid_bootstrap_token"),
+            Self::UserNotFound(_) => (StatusCode::NOT_FOUND, "user_not_found"),
+            Self::UserExists(_) => (StatusCode::CONFLICT, "user_exists"),
+            Self::Storage(_) | Self::Config(_) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal_error")
             }
         };
@@ -263,7 +260,7 @@ where
     type Rejection = std::convert::Infallible;
 
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
-        Ok(OptionalAuth(
+        Ok(Self(
             RequireAuth::from_request_parts(parts, state).await.ok(),
         ))
     }
@@ -289,7 +286,7 @@ where
             );
         }
 
-        Ok(RequireAdmin(auth))
+        Ok(Self(auth))
     }
 }
 

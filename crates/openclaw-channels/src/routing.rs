@@ -24,7 +24,7 @@ pub struct RouteRule {
 impl AgentRouter {
     /// Create a new router with default agent.
     #[must_use]
-    pub fn new(default_agent: AgentId) -> Self {
+    pub const fn new(default_agent: AgentId) -> Self {
         Self {
             routes: Vec::new(),
             default_agent,

@@ -13,6 +13,7 @@ use openclaw_core::types::{AgentId, ChannelId, PeerId, PeerType, SessionKey};
 ///
 /// Returns JSON: `{"valid": true, "sanitized": "..."}` or `{"valid": false, "error": "..."}`
 #[napi]
+#[must_use]
 pub fn validate_message(content: String, max_length: Option<u32>) -> String {
     let max_len = max_length.unwrap_or(100_000) as usize;
     match openclaw_core::validation::validate_message_content(&content, max_len) {
@@ -30,6 +31,7 @@ pub fn validate_message(content: String, max_length: Option<u32>) -> String {
 ///
 /// Returns JSON: `{"valid": true}` or `{"valid": false, "error": "..."}`
 #[napi]
+#[must_use]
 pub fn validate_path(path: String) -> String {
     match openclaw_core::validation::validate_path(&path) {
         Ok(()) => serde_json::json!({"valid": true}).to_string(),
@@ -47,6 +49,7 @@ pub fn validate_path(path: String) -> String {
 /// * `peer_type` - "dm", "group", "channel", or "thread"
 /// * `peer_id` - The peer/user/group ID
 #[napi]
+#[must_use]
 pub fn build_session_key(
     agent_id: String,
     channel: String,

@@ -1,12 +1,12 @@
-//! # OpenClaw Node.js Bridge
+//! # `OpenClaw` Node.js Bridge
 //!
 //! napi-rs bindings to expose Rust core functionality to Node.js.
 //!
 //! ## Features
 //!
-//! - **Configuration**: Load and validate OpenClaw config files
+//! - **Configuration**: Load and validate `OpenClaw` config files
 //! - **Event Store**: Append-only event storage with CRDT projections
-//! - **Providers**: Anthropic Claude and OpenAI GPT API clients
+//! - **Providers**: Anthropic Claude and `OpenAI` GPT API clients
 //! - **Auth**: Encrypted credential storage with safe API key handling
 //! - **Tools**: Tool registry for agent tool execution
 //! - **Validation**: Input validation and session key building

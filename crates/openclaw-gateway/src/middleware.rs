@@ -21,6 +21,7 @@ impl GatewayRateLimiter {
     }
 
     /// Check if a request is allowed.
+    #[must_use]
     pub fn check(&self, client_id: &str) -> bool {
         self.client_limiter
             .check_key(&client_id.to_string())

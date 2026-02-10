@@ -17,7 +17,7 @@ use crate::traits::{
 
 /// Signal channel adapter.
 ///
-/// Uses signal-cli REST API (https://github.com/bbernhard/signal-cli-rest-api).
+/// Uses signal-cli REST API (<https://github.com/bbernhard/signal-cli-rest-api>).
 pub struct SignalChannel {
     client: Client,
     api_url: String,
@@ -35,7 +35,7 @@ impl SignalChannel {
     /// Create a new Signal channel.
     ///
     /// # Arguments
-    /// * `api_url` - URL of the signal-cli REST API (e.g., "http://localhost:8080")
+    /// * `api_url` - URL of the signal-cli REST API (e.g., "<http://localhost:8080>")
     /// * `phone_number` - Registered phone number (e.g., "+1234567890")
     #[must_use]
     pub fn new(api_url: impl Into<String>, phone_number: impl Into<String>) -> Self {
@@ -73,7 +73,7 @@ impl SignalChannel {
         if !response.status().is_success() {
             let status = response.status();
             let text = response.text().await.unwrap_or_default();
-            return Err(ChannelError::Network(format!("{}: {}", status, text)));
+            return Err(ChannelError::Network(format!("{status}: {text}")));
         }
 
         response
@@ -108,7 +108,7 @@ impl SignalChannel {
         if !response.status().is_success() {
             let status = response.status();
             let text = response.text().await.unwrap_or_default();
-            return Err(ChannelError::Network(format!("{}: {}", status, text)));
+            return Err(ChannelError::Network(format!("{status}: {text}")));
         }
 
         Ok(())
@@ -117,11 +117,11 @@ impl SignalChannel {
 
 #[async_trait]
 impl Channel for SignalChannel {
-    fn id(&self) -> &str {
+    fn id(&self) -> &'static str {
         "signal"
     }
 
-    fn label(&self) -> &str {
+    fn label(&self) -> &'static str {
         "Signal"
     }
 
@@ -189,7 +189,7 @@ impl ChannelOutbound for SignalChannel {
         ctx: OutboundContext,
         text: &str,
     ) -> Result<DeliveryResult, ChannelError> {
-        let endpoint = format!("/v2/send");
+        let endpoint = "/v2/send".to_string();
 
         let params = SendMessageParams {
             number: self.phone_number.clone(),
@@ -208,7 +208,7 @@ impl ChannelOutbound for SignalChannel {
             .unwrap_or_default();
 
         Ok(DeliveryResult {
-            message_id: timestamp.clone(),
+            message_id: timestamp,
             channel: ChannelId::signal(),
             timestamp: chrono::Utc::now(),
             chat_id: Some(ctx.chat_id),
@@ -263,7 +263,7 @@ impl ChannelInbound for SignalChannel {
         let (peer_type, peer_id_str) = if let Some(group_info) = &data_message.group_info {
             (PeerType::Group, group_info.group_id.clone())
         } else {
-            (PeerType::Dm, source.clone())
+            (PeerType::Dm, source)
         };
 
         // Convert attachments
@@ -293,9 +293,8 @@ impl ChannelInbound for SignalChannel {
             })
             .collect();
 
-        let timestamp =
-            chrono::DateTime::from_timestamp_millis(envelope.timestamp.unwrap_or(0) as i64)
-                .unwrap_or_else(chrono::Utc::now);
+        let timestamp = chrono::DateTime::from_timestamp_millis(envelope.timestamp.unwrap_or(0))
+            .unwrap_or_else(chrono::Utc::now);
 
         Ok(Message {
             id: envelope.timestamp.unwrap_or(0).to_string(),

@@ -90,13 +90,13 @@ impl CredentialStore {
 
     /// Load and decrypt a credential.
     ///
-    /// Returns the decrypted API key wrapped in NodeApiKey for safety.
+    /// Returns the decrypted API key wrapped in `NodeApiKey` for safety.
     #[napi]
     pub async fn load(&self, name: String) -> Result<NodeApiKey> {
         let store = self.inner.read().await;
         let key = store
             .load(&name)
-            .map_err(|e| OpenClawError::from_credential_error(e))?;
+            .map_err(OpenClawError::from_credential_error)?;
         Ok(NodeApiKey { inner: key })
     }
 

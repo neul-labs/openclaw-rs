@@ -56,7 +56,7 @@ pub struct NodeOutput {
 impl NodeOutput {
     /// Create output that continues to next node.
     #[must_use]
-    pub fn continue_with(data: serde_json::Value) -> Self {
+    pub const fn continue_with(data: serde_json::Value) -> Self {
         Self {
             data,
             next: None,
@@ -209,7 +209,7 @@ pub struct WorkflowEngine {
 impl WorkflowEngine {
     /// Create a new workflow engine.
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             max_iterations: 1000,
         }
@@ -217,7 +217,7 @@ impl WorkflowEngine {
 
     /// Set maximum iterations (cycle protection).
     #[must_use]
-    pub fn with_max_iterations(mut self, max: usize) -> Self {
+    pub const fn with_max_iterations(mut self, max: usize) -> Self {
         self.max_iterations = max;
         self
     }
@@ -234,7 +234,7 @@ impl WorkflowEngine {
     ) -> Result<serde_json::Value, WorkflowError> {
         let mut current_node_id = workflow.start_node.clone();
         let mut data = input;
-        let mut state = HashMap::new();
+        let state = HashMap::new();
         let mut iterations = 0;
 
         loop {
@@ -314,7 +314,7 @@ impl WorkflowNode for PassthroughNode {
         &self.id
     }
 
-    fn node_type(&self) -> &str {
+    fn node_type(&self) -> &'static str {
         "passthrough"
     }
 

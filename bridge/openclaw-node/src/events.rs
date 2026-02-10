@@ -10,7 +10,7 @@ use openclaw_core::types::{SessionKey, TokenUsage};
 
 use crate::error::OpenClawError;
 
-/// OpenClaw event store wrapper for Node.js.
+/// `OpenClaw` event store wrapper for Node.js.
 ///
 /// Provides append-only event storage for session events with
 /// CRDT projections for conflict-free state.
@@ -38,8 +38,8 @@ impl NodeEventStore {
     ///
     /// * `session_key` - The session key
     /// * `agent_id` - The agent ID
-    /// * `event_type` - Event type: "session_started", "message_received", "message_sent",
-    ///                  "agent_response", "session_ended", "state_changed", "tool_called", "tool_result"
+    /// * `event_type` - Event type: "`session_started`", "`message_received`", "`message_sent`",
+    ///                  "`agent_response`", "`session_ended`", "`state_changed`", "`tool_called`", "`tool_result`"
     /// * `data` - JSON data for the event
     #[napi]
     pub fn append_event(
@@ -116,7 +116,7 @@ impl NodeEventStore {
     }
 }
 
-/// Parse event type string into SessionEventKind.
+/// Parse event type string into `SessionEventKind`.
 fn parse_event_kind(event_type: &str, data: &serde_json::Value) -> Result<SessionEventKind> {
     match event_type {
         "session_started" => Ok(SessionEventKind::SessionStarted {

@@ -64,7 +64,7 @@ pub struct JsCompletionResponse {
     pub model: String,
     /// Text content (joined from all text blocks)
     pub content: String,
-    /// Stop reason: "end_turn", "max_tokens", "stop_sequence", "tool_use"
+    /// Stop reason: "`end_turn`", "`max_tokens`", "`stop_sequence`", "`tool_use`"
     pub stop_reason: Option<String>,
     /// Tool calls made by the model
     pub tool_calls: Option<Vec<JsToolCall>>,
@@ -102,20 +102,21 @@ pub struct JsTokenUsage {
 #[napi(object)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JsStreamChunk {
-    /// Chunk type: "message_start", "content_block_start", "content_block_delta",
-    /// "content_block_stop", "message_delta", "message_stop"
+    /// Chunk type: "`message_start`", "`content_block_start`", "`content_block_delta`",
+    /// "`content_block_stop`", "`message_delta`", "`message_stop`"
     pub chunk_type: String,
-    /// Text delta (for content_block_delta)
+    /// Text delta (for `content_block_delta`)
     pub delta: Option<String>,
     /// Block index
     pub index: Option<u32>,
-    /// Stop reason (for message_delta with stop)
+    /// Stop reason (for `message_delta` with stop)
     pub stop_reason: Option<String>,
 }
 
 // ---- Conversion functions ----
 
-/// Convert JsMessage to internal Message.
+/// Convert `JsMessage` to internal Message.
+#[must_use]
 pub fn convert_js_message(msg: &JsMessage) -> Message {
     let role = match msg.role.as_str() {
         "user" => Role::User,
@@ -143,7 +144,8 @@ pub fn convert_js_message(msg: &JsMessage) -> Message {
     }
 }
 
-/// Convert JsTool to internal Tool.
+/// Convert `JsTool` to internal Tool.
+#[must_use]
 pub fn convert_js_tool(tool: &JsTool) -> ProviderTool {
     ProviderTool {
         name: tool.name.clone(),
@@ -152,14 +154,14 @@ pub fn convert_js_tool(tool: &JsTool) -> ProviderTool {
     }
 }
 
-/// Convert JsCompletionRequest to internal CompletionRequest.
+/// Convert `JsCompletionRequest` to internal `CompletionRequest`.
 pub fn convert_request(req: JsCompletionRequest) -> CompletionRequest {
     CompletionRequest {
         model: req.model,
         messages: req.messages.iter().map(convert_js_message).collect(),
         system: req.system,
         max_tokens: req.max_tokens,
-        temperature: req.temperature.map(|t| t as f32).unwrap_or(1.0),
+        temperature: req.temperature.map_or(1.0, |t| t as f32),
         stop: req.stop,
         tools: req
             .tools
@@ -167,7 +169,8 @@ pub fn convert_request(req: JsCompletionRequest) -> CompletionRequest {
     }
 }
 
-/// Convert internal CompletionResponse to JsCompletionResponse.
+/// Convert internal `CompletionResponse` to `JsCompletionResponse`.
+#[must_use]
 pub fn convert_response(resp: CompletionResponse) -> JsCompletionResponse {
     // Extract text content
     let content = resp

@@ -8,6 +8,8 @@
 //! Only load plugins from trusted sources.
 
 #![allow(unsafe_code)]
+// FFI code requires specific pointer handling patterns
+#![allow(clippy::ptr_as_ptr, clippy::borrow_as_ptr, clippy::ptr_cast_constness)]
 
 use std::ffi::{CStr, c_char, c_int};
 use std::path::{Path, PathBuf};
@@ -23,7 +25,7 @@ pub const PLUGIN_API_VERSION: u32 = 1;
 /// Plugin info returned by native plugins.
 #[repr(C)]
 pub struct CPluginInfo {
-    /// API version (must match PLUGIN_API_VERSION).
+    /// API version (must match `PLUGIN_API_VERSION`).
     pub api_version: u32,
     /// Plugin name (null-terminated UTF-8).
     pub name: *const c_char,
@@ -44,16 +46,16 @@ pub struct CHookResult {
     pub error: *const c_char,
 }
 
-/// Type alias for plugin_get_info function.
+/// Type alias for `plugin_get_info` function.
 type GetInfoFn = unsafe extern "C" fn() -> *const CPluginInfo;
-/// Type alias for plugin_init function.
+/// Type alias for `plugin_init` function.
 type InitFn = unsafe extern "C" fn() -> c_int;
-/// Type alias for plugin_deinit function.
+/// Type alias for `plugin_deinit` function.
 type DeinitFn = unsafe extern "C" fn() -> c_int;
-/// Type alias for plugin_execute_hook function.
+/// Type alias for `plugin_execute_hook` function.
 type ExecuteHookFn =
     unsafe extern "C" fn(hook_id: c_int, data: *const u8, data_len: usize) -> CHookResult;
-/// Type alias for plugin_free_result function.
+/// Type alias for `plugin_free_result` function.
 type FreeResultFn = unsafe extern "C" fn(result: *mut CHookResult);
 
 /// Native plugin loaded from a dynamic library.
@@ -213,8 +215,9 @@ impl NativePlugin {
         let result = unsafe { execute(hook_id, data.as_ptr(), data.len()) };
 
         if result.status != 0 {
+            let status = result.status;
             let error_msg = if result.error.is_null() {
-                format!("Hook execution failed with code: {}", result.status)
+                format!("Hook execution failed with code: {status}")
             } else {
                 unsafe {
                     CStr::from_ptr(result.error)
@@ -226,7 +229,7 @@ impl NativePlugin {
 
             // Free the result if needed
             if let Some(free_fn) = self.free_result_fn {
-                unsafe { free_fn(&result as *const _ as *mut _) };
+                unsafe { free_fn(std::ptr::from_ref(&result) as *mut _) };
             }
 
             return Err(PluginError::ExecutionError(error_msg));
@@ -241,7 +244,7 @@ impl NativePlugin {
 
         // Free the result
         if let Some(free_fn) = self.free_result_fn {
-            unsafe { free_fn(&result as *const _ as *mut _) };
+            unsafe { free_fn(std::ptr::from_ref(&result) as *mut _) };
         }
 
         Ok(result_data)
@@ -249,7 +252,7 @@ impl NativePlugin {
 
     /// Get plugin info.
     #[must_use]
-    pub fn info(&self) -> &NativePluginInfo {
+    pub const fn info(&self) -> &NativePluginInfo {
         &self.info
     }
 }
@@ -340,6 +343,7 @@ impl Plugin for NativePlugin {
 /// Discover native plugins in a directory.
 ///
 /// Looks for platform-appropriate shared libraries (.so, .dylib, .dll).
+#[must_use]
 pub fn discover_native_plugins(dir: &Path) -> Vec<PathBuf> {
     let extension = if cfg!(windows) {
         "dll"
@@ -371,7 +375,7 @@ pub struct NativePluginManager {
 impl NativePluginManager {
     /// Create a new plugin manager.
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             plugins: Vec::new(),
         }

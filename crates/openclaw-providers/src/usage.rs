@@ -95,7 +95,7 @@ pub struct TokenUsageSummary {
 impl TokenUsageSummary {
     /// Get total tokens (input + output).
     #[must_use]
-    pub fn total_tokens(&self) -> u64 {
+    pub const fn total_tokens(&self) -> u64 {
         self.input_tokens + self.output_tokens
     }
 }

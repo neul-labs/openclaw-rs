@@ -104,7 +104,7 @@ pub enum ProfileType {
     OAuth,
     /// Bot token (e.g., Telegram, Discord).
     BotToken,
-    /// Session-based auth (e.g., WhatsApp, Signal).
+    /// Session-based auth (e.g., `WhatsApp`, Signal).
     Session,
     /// Certificate-based auth.
     Certificate,
@@ -133,15 +133,14 @@ impl OAuthToken {
     /// Check if the token is expired.
     #[must_use]
     pub fn is_expired(&self) -> bool {
-        self.expires_at.map(|exp| exp < Utc::now()).unwrap_or(false)
+        self.expires_at.is_some_and(|exp| exp < Utc::now())
     }
 
     /// Check if the token needs refresh (expires within 5 minutes).
     #[must_use]
     pub fn needs_refresh(&self) -> bool {
         self.expires_at
-            .map(|exp| exp < Utc::now() + chrono::Duration::minutes(5))
-            .unwrap_or(false)
+            .is_some_and(|exp| exp < Utc::now() + chrono::Duration::minutes(5))
     }
 }
 

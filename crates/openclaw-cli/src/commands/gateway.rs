@@ -44,13 +44,12 @@ pub async fn run_gateway(args: GatewayArgs) -> Result<()> {
 /// Start the gateway server.
 async fn run_gateway_server(port: Option<u16>, bind: Option<String>, force: bool) -> Result<()> {
     // Load configuration
-    let config = match openclaw_core::Config::load_default() {
-        Ok(c) => c,
-        Err(_) => {
-            ui::warning("No configuration found, using defaults");
-            ui::info("Run 'openclaw onboard' for full setup");
-            openclaw_core::Config::default()
-        }
+    let config = if let Ok(c) = openclaw_core::Config::load_default() {
+        c
+    } else {
+        ui::warning("No configuration found, using defaults");
+        ui::info("Run 'openclaw onboard' for full setup");
+        openclaw_core::Config::default()
     };
 
     // Determine port and bind address
@@ -63,21 +62,18 @@ async fn run_gateway_server(port: Option<u16>, bind: Option<String>, force: bool
 
     // Check if port is already in use
     if !force {
-        if let Ok(listener) =
-            std::net::TcpListener::bind(format!("{}:{}", bind_address, server_port))
-        {
+        if let Ok(listener) = std::net::TcpListener::bind(format!("{bind_address}:{server_port}")) {
             drop(listener);
         } else {
             ui::error(&format!(
-                "Port {} is already in use. Use --force to override.",
-                server_port
+                "Port {server_port} is already in use. Use --force to override."
             ));
             return Ok(());
         }
     }
 
     ui::header("Starting OpenClaw Gateway");
-    ui::kv("Address", &format!("{}:{}", bind_address, server_port));
+    ui::kv("Address", &format!("{bind_address}:{server_port}"));
     let mode_str = match &config.gateway.mode {
         BindMode::Local => "local",
         BindMode::Public => "public",
@@ -114,39 +110,36 @@ async fn gateway_status() -> Result<()> {
     };
 
     // Try to connect
-    match tokio::net::TcpStream::connect(format!("127.0.0.1:{}", port)).await {
-        Ok(_) => {
-            ui::success(&format!("Gateway is running on port {}", port));
+    if let Ok(_) = tokio::net::TcpStream::connect(format!("127.0.0.1:{port}")).await {
+        ui::success(&format!("Gateway is running on port {port}"));
 
-            // Try health check
-            let client = reqwest::Client::new();
-            match client
-                .get(format!("http://127.0.0.1:{}/health", port))
-                .timeout(std::time::Duration::from_secs(2))
-                .send()
-                .await
-            {
-                Ok(resp) => {
-                    if resp.status().is_success() {
-                        if let Ok(body) = resp.json::<serde_json::Value>().await {
-                            if let Some(version) = body.get("version").and_then(|v| v.as_str()) {
-                                ui::kv("Version", version);
-                            }
-                            if let Some(status) = body.get("status").and_then(|v| v.as_str()) {
-                                ui::kv("Status", status);
-                            }
+        // Try health check
+        let client = reqwest::Client::new();
+        match client
+            .get(format!("http://127.0.0.1:{port}/health"))
+            .timeout(std::time::Duration::from_secs(2))
+            .send()
+            .await
+        {
+            Ok(resp) => {
+                if resp.status().is_success() {
+                    if let Ok(body) = resp.json::<serde_json::Value>().await {
+                        if let Some(version) = body.get("version").and_then(|v| v.as_str()) {
+                            ui::kv("Version", version);
+                        }
+                        if let Some(status) = body.get("status").and_then(|v| v.as_str()) {
+                            ui::kv("Status", status);
                         }
                     }
                 }
-                Err(_) => {
-                    ui::warning("Health check failed");
-                }
+            }
+            Err(_) => {
+                ui::warning("Health check failed");
             }
         }
-        Err(_) => {
-            ui::warning(&format!("Gateway is not running on port {}", port));
-            ui::info("Start with: openclaw gateway run");
-        }
+    } else {
+        ui::warning(&format!("Gateway is not running on port {port}"));
+        ui::info("Start with: openclaw gateway run");
     }
 
     Ok(())

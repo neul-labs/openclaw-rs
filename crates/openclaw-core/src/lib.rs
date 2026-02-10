@@ -1,6 +1,6 @@
-//! # OpenClaw Core
+//! # `OpenClaw` Core
 //!
-//! Core types, configuration, and storage for OpenClaw.
+//! Core types, configuration, and storage for `OpenClaw`.
 //!
 //! This crate provides:
 //! - Configuration loading and validation (JSON5 format)

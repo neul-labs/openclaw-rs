@@ -1,4 +1,4 @@
-//! OpenAI API provider.
+//! `OpenAI` API provider.
 
 use async_trait::async_trait;
 use futures::{Stream, StreamExt};
@@ -15,7 +15,7 @@ use openclaw_core::types::TokenUsage;
 
 const DEFAULT_BASE_URL: &str = "https://api.openai.com";
 
-/// OpenAI API provider.
+/// `OpenAI` API provider.
 pub struct OpenAIProvider {
     client: Client,
     api_key: ApiKey,
@@ -24,7 +24,7 @@ pub struct OpenAIProvider {
 }
 
 impl OpenAIProvider {
-    /// Create a new OpenAI provider.
+    /// Create a new `OpenAI` provider.
     #[must_use]
     pub fn new(api_key: ApiKey) -> Self {
         Self {
@@ -53,7 +53,7 @@ impl OpenAIProvider {
         self
     }
 
-    /// Convert our request format to OpenAI's API format.
+    /// Convert our request format to `OpenAI`'s API format.
     fn to_openai_request(&self, request: &CompletionRequest) -> OpenAIRequest {
         let mut messages: Vec<OpenAIMessage> = Vec::new();
 
@@ -209,7 +209,7 @@ fn extract_tool_calls(
 
 #[async_trait]
 impl Provider for OpenAIProvider {
-    fn name(&self) -> &str {
+    fn name(&self) -> &'static str {
         "openai"
     }
 

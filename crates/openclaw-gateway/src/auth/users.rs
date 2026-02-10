@@ -1,7 +1,6 @@
 //! User model and storage.
 
 use std::path::Path;
-use std::sync::Arc;
 
 use argon2::{
     Argon2,
@@ -27,19 +26,19 @@ pub enum UserRole {
 impl UserRole {
     /// Check if this role has admin privileges.
     #[must_use]
-    pub fn is_admin(&self) -> bool {
+    pub const fn is_admin(&self) -> bool {
         matches!(self, Self::Admin)
     }
 
     /// Check if this role can manage sessions.
     #[must_use]
-    pub fn can_manage_sessions(&self) -> bool {
+    pub const fn can_manage_sessions(&self) -> bool {
         matches!(self, Self::Admin | Self::Operator)
     }
 
     /// Check if this role can view data.
     #[must_use]
-    pub fn can_view(&self) -> bool {
+    pub const fn can_view(&self) -> bool {
         true // All roles can view
     }
 }
@@ -206,7 +205,7 @@ impl UserStore {
 
     /// Get the underlying sled database.
     #[must_use]
-    pub fn db(&self) -> &sled::Db {
+    pub const fn db(&self) -> &sled::Db {
         &self.db
     }
 
@@ -358,7 +357,7 @@ impl UserStore {
     pub fn list(&self) -> Result<Vec<User>, AuthError> {
         let mut users = Vec::new();
 
-        for result in self.tree.iter() {
+        for result in &self.tree {
             let (key, value) =
                 result.map_err(|e| AuthError::Storage(format!("Iter error: {e}")))?;
 

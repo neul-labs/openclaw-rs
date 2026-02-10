@@ -2,6 +2,13 @@
 //!
 //! Provides secure, sandboxed execution of WebAssembly plugins.
 
+// WASM ABI requires specific integer types and casts
+#![allow(
+    clippy::cast_sign_loss,
+    clippy::cast_possible_truncation,
+    clippy::cast_possible_wrap
+)]
+
 use std::path::Path;
 
 use async_trait::async_trait;
@@ -152,9 +159,8 @@ impl WasmPlugin {
                  level: i32,
                  msg_ptr: i32,
                  msg_len: i32| {
-                    let memory = match caller.get_export("memory") {
-                        Some(wasmtime::Extern::Memory(mem)) => mem,
-                        _ => return,
+                    let Some(wasmtime::Extern::Memory(memory)) = caller.get_export("memory") else {
+                        return;
                     };
 
                     let data = memory.data(&caller);
@@ -166,11 +172,11 @@ impl WasmPlugin {
 
                     let msg = String::from_utf8_lossy(&data[start..end]);
                     match level {
-                        0 => tracing::trace!(plugin = "wasm", "{}", msg),
-                        1 => tracing::debug!(plugin = "wasm", "{}", msg),
-                        2 => tracing::info!(plugin = "wasm", "{}", msg),
-                        3 => tracing::warn!(plugin = "wasm", "{}", msg),
-                        _ => tracing::error!(plugin = "wasm", "{}", msg),
+                        0 => tracing::trace!(plugin = "wasm", "{msg}"),
+                        1 => tracing::debug!(plugin = "wasm", "{msg}"),
+                        2 => tracing::info!(plugin = "wasm", "{msg}"),
+                        3 => tracing::warn!(plugin = "wasm", "{msg}"),
+                        _ => tracing::error!(plugin = "wasm", "{msg}"),
                     }
                 },
             )
@@ -195,9 +201,8 @@ impl WasmPlugin {
                 "env",
                 "plugin_set_result",
                 |mut caller: wasmtime::Caller<'_, PluginState>, ptr: i32, len: i32| {
-                    let memory = match caller.get_export("memory") {
-                        Some(wasmtime::Extern::Memory(mem)) => mem,
-                        _ => return,
+                    let Some(wasmtime::Extern::Memory(memory)) = caller.get_export("memory") else {
+                        return;
                     };
 
                     let data = memory.data(&caller);
@@ -326,7 +331,7 @@ impl WasmPlugin {
 
     /// Get plugin metadata.
     #[must_use]
-    pub fn metadata(&self) -> &WasmPluginMetadata {
+    pub const fn metadata(&self) -> &WasmPluginMetadata {
         &self.metadata
     }
 }
@@ -388,7 +393,7 @@ pub struct WasmPluginManager {
 impl WasmPluginManager {
     /// Create a new plugin manager.
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             plugins: Vec::new(),
         }

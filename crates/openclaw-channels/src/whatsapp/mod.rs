@@ -18,7 +18,7 @@ use crate::traits::{
 
 const WHATSAPP_API_BASE: &str = "https://graph.facebook.com/v18.0";
 
-/// WhatsApp channel adapter using the Cloud API (Business Platform).
+/// `WhatsApp` channel adapter using the Cloud API (Business Platform).
 pub struct WhatsAppChannel {
     client: Client,
     access_token: ApiKey,
@@ -34,11 +34,11 @@ struct WhatsAppState {
 }
 
 impl WhatsAppChannel {
-    /// Create a new WhatsApp channel.
+    /// Create a new `WhatsApp` channel.
     ///
     /// # Arguments
     /// * `access_token` - Meta/Facebook access token
-    /// * `phone_number_id` - WhatsApp Business phone number ID
+    /// * `phone_number_id` - `WhatsApp` Business phone number ID
     #[must_use]
     pub fn new(access_token: ApiKey, phone_number_id: impl Into<String>) -> Self {
         Self {
@@ -49,14 +49,14 @@ impl WhatsAppChannel {
         }
     }
 
-    /// Call a WhatsApp Cloud API endpoint.
+    /// Call a `WhatsApp` Cloud API endpoint.
     async fn call<T: for<'de> Deserialize<'de>>(
         &self,
         method: reqwest::Method,
         endpoint: &str,
         body: Option<&impl Serialize>,
     ) -> Result<T, ChannelError> {
-        let url = format!("{}{}", WHATSAPP_API_BASE, endpoint);
+        let url = format!("{WHATSAPP_API_BASE}{endpoint}");
 
         let mut request = self
             .client
@@ -82,7 +82,7 @@ impl WhatsAppChannel {
                 return Err(ChannelError::RateLimited);
             }
             let text = response.text().await.unwrap_or_default();
-            return Err(ChannelError::Network(format!("{}: {}", status, text)));
+            return Err(ChannelError::Network(format!("{status}: {text}")));
         }
 
         response
@@ -94,11 +94,11 @@ impl WhatsAppChannel {
 
 #[async_trait]
 impl Channel for WhatsAppChannel {
-    fn id(&self) -> &str {
+    fn id(&self) -> &'static str {
         "whatsapp"
     }
 
-    fn label(&self) -> &str {
+    fn label(&self) -> &'static str {
         "WhatsApp"
     }
 
@@ -506,7 +506,7 @@ struct MessageInfo {
 /// Webhook payload.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WhatsAppWebhookPayload {
-    /// Object type (always "whatsapp_business_account").
+    /// Object type (always "`whatsapp_business_account`").
     pub object: String,
     /// Entry array.
     pub entry: Vec<WebhookEntry>,
@@ -515,7 +515,7 @@ pub struct WhatsAppWebhookPayload {
 /// Webhook entry.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WebhookEntry {
-    /// WhatsApp Business Account ID.
+    /// `WhatsApp` Business Account ID.
     pub id: String,
     /// Changes array.
     pub changes: Vec<WebhookChange>,
@@ -557,7 +557,7 @@ pub struct WebhookMetadata {
 pub struct WebhookContact {
     /// Contact profile.
     pub profile: Option<ContactProfile>,
-    /// WhatsApp ID (phone number).
+    /// `WhatsApp` ID (phone number).
     pub wa_id: String,
 }
 
@@ -573,7 +573,7 @@ pub struct ContactProfile {
 pub struct WebhookMessage {
     /// Message ID.
     pub id: String,
-    /// Sender's WhatsApp ID.
+    /// Sender's `WhatsApp` ID.
     pub from: String,
     /// Timestamp (Unix epoch string).
     pub timestamp: String,

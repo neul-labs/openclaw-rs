@@ -162,7 +162,7 @@ impl BashTool {
 
     /// Create with custom sandbox config.
     #[must_use]
-    pub fn with_sandbox_config(config: crate::sandbox::SandboxConfig) -> Self {
+    pub const fn with_sandbox_config(config: crate::sandbox::SandboxConfig) -> Self {
         Self {
             sandbox_config: config,
         }
@@ -177,11 +177,11 @@ impl Default for BashTool {
 
 #[async_trait]
 impl Tool for BashTool {
-    fn name(&self) -> &str {
+    fn name(&self) -> &'static str {
         "bash"
     }
 
-    fn description(&self) -> &str {
+    fn description(&self) -> &'static str {
         "Execute a bash command in a sandboxed environment"
     }
 

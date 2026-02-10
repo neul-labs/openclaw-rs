@@ -1,4 +1,4 @@
-//! # OpenClaw Plugins
+//! # `OpenClaw` Plugins
 //!
 //! Plugin system and FFI bridge for TypeScript, WASM, and native plugins.
 

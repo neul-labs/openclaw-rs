@@ -1,4 +1,4 @@
-//! # OpenClaw Channels
+//! # `OpenClaw` Channels
 //!
 //! Channel adapters for messaging platforms.
 

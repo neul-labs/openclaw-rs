@@ -83,6 +83,7 @@ impl CredentialStore {
     ///
     /// * `encryption_key` - 32-byte encryption key (derive from master password with Argon2)
     /// * `store_path` - Directory to store encrypted credentials
+    #[must_use]
     pub fn new(encryption_key: [u8; 32], store_path: PathBuf) -> Self {
         Self {
             encryption_key: SecretBox::new(Box::new(encryption_key)),

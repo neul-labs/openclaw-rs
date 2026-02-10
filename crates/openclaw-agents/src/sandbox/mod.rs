@@ -31,24 +31,19 @@ pub enum SandboxError {
 }
 
 /// Sandbox security levels.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum SandboxLevel {
     /// No isolation - NEVER use in production.
     None = 0,
     /// Basic filesystem isolation.
     Minimal = 1,
     /// PID namespace + resource limits (default).
+    #[default]
     Standard = 2,
     /// Network isolation + seccomp filtering.
     Strict = 3,
     /// No host filesystem access.
     Paranoid = 4,
-}
-
-impl Default for SandboxLevel {
-    fn default() -> Self {
-        Self::Standard
-    }
 }
 
 /// Sandbox configuration.
@@ -156,12 +151,11 @@ fn execute_sandboxed_linux(
     use std::time::Instant;
 
     // Check if bwrap is available
-    if Command::new("which")
+    if !Command::new("which")
         .arg("bwrap")
         .output()?
         .status
         .success()
-        == false
     {
         return Err(SandboxError::NotAvailable(
             "bubblewrap (bwrap) not installed".to_string(),

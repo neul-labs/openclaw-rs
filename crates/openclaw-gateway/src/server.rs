@@ -18,18 +18,15 @@ use tokio::sync::RwLock;
 
 use openclaw_agents::runtime::{AgentContext, AgentRuntime};
 use openclaw_agents::tools::ToolRegistry;
-use openclaw_channels::{ChannelCapabilities, ChannelProbe, ChannelRegistry};
+use openclaw_channels::{ChannelCapabilities, ChannelRegistry};
 use openclaw_core::events::{
     EventStore, SessionEvent, SessionEventKind, SessionMessage, SessionProjection, SessionState,
 };
 use openclaw_core::types::{AgentId, ChannelId, SessionKey};
 
 use crate::GatewayError;
-use crate::auth::{
-    AuthConfig, AuthState, BootstrapManager, JwtManager, SetupStatus, User, UserRole, UserStore,
-    setup::auto_setup_from_env,
-};
-use crate::events::{EventBroadcaster, UiEvent, UiEventEnvelope};
+use crate::auth::{AuthConfig, AuthState, JwtManager, User, UserRole, setup::auto_setup_from_env};
+use crate::events::EventBroadcaster;
 use crate::rpc::{self, RpcRequest, RpcResponse};
 
 #[cfg(feature = "ui")]
@@ -186,15 +183,14 @@ impl GatewayBuilder {
             .map_err(|e| GatewayError::Config(format!("Failed to create data dir: {e}")))?;
 
         // Initialize auth state if not provided
-        let auth = match self.auth_state {
-            Some(auth) => auth,
-            None => {
-                let auth_config = self.config.auth.clone().with_env_overrides();
-                Arc::new(
-                    AuthState::initialize(auth_config, &self.config.data_dir)
-                        .map_err(|e| GatewayError::Config(format!("Auth init failed: {e}")))?,
-                )
-            }
+        let auth = if let Some(auth) = self.auth_state {
+            auth
+        } else {
+            let auth_config = self.config.auth.clone().with_env_overrides();
+            Arc::new(
+                AuthState::initialize(auth_config, &self.config.data_dir)
+                    .map_err(|e| GatewayError::Config(format!("Auth init failed: {e}")))?,
+            )
         };
 
         // Auto-setup from environment if configured
@@ -409,32 +405,25 @@ async fn handle_socket(
     {
         let state_read = state.read().await;
         if state_read.auth.config.enabled && state_read.auth.config.require_auth_for_ws {
-            match &auth_token {
-                Some(token) => {
-                    if let Err(e) = state_read.auth.validate_token(token) {
-                        let error_response = RpcResponse::error(
-                            None,
-                            rpc::UNAUTHORIZED,
-                            format!("Invalid token: {e}"),
-                        );
-                        let response_text =
-                            serde_json::to_string(&error_response).unwrap_or_default();
-                        let mut guard = sender.lock().await;
-                        let _ = guard.send(Message::Text(response_text.into())).await;
-                        return;
-                    }
-                }
-                None => {
-                    let error_response = RpcResponse::error(
-                        None,
-                        rpc::UNAUTHORIZED,
-                        "Authentication required".to_string(),
-                    );
+            if let Some(token) = &auth_token {
+                if let Err(e) = state_read.auth.validate_token(token) {
+                    let error_response =
+                        RpcResponse::error(None, rpc::UNAUTHORIZED, format!("Invalid token: {e}"));
                     let response_text = serde_json::to_string(&error_response).unwrap_or_default();
                     let mut guard = sender.lock().await;
                     let _ = guard.send(Message::Text(response_text.into())).await;
                     return;
                 }
+            } else {
+                let error_response = RpcResponse::error(
+                    None,
+                    rpc::UNAUTHORIZED,
+                    "Authentication required".to_string(),
+                );
+                let response_text = serde_json::to_string(&error_response).unwrap_or_default();
+                let mut guard = sender.lock().await;
+                let _ = guard.send(Message::Text(response_text.into())).await;
+                return;
             }
         }
     }
@@ -513,7 +502,7 @@ async fn handle_socket(
             Ok(req) => req,
             Err(e) => {
                 let error_response =
-                    RpcResponse::error(None, rpc::PARSE_ERROR, format!("Parse error: {}", e));
+                    RpcResponse::error(None, rpc::PARSE_ERROR, format!("Parse error: {e}"));
                 let response_text = serde_json::to_string(&error_response).unwrap_or_default();
                 let mut guard = sender.lock().await;
                 if guard
@@ -629,10 +618,7 @@ async fn dispatch_rpc(
         // Event subscription (WebSocket-only, returns ack)
         "events.subscribe" => handle_events_subscribe().await,
 
-        _ => Err((
-            rpc::METHOD_NOT_FOUND,
-            format!("Method not found: {}", method),
-        )),
+        _ => Err((rpc::METHOD_NOT_FOUND, format!("Method not found: {method}"))),
     }
 }
 
@@ -762,8 +748,8 @@ async fn handle_setup_status(state: &Arc<RwLock<GatewayState>>) -> RpcResult {
 
     let status = bootstrap.status(&state.auth.users, Some(&base_url));
 
-    Ok(serde_json::to_value(&status)
-        .map_err(|e| (rpc::INTERNAL_ERROR, format!("Serialization error: {e}")))?)
+    serde_json::to_value(&status)
+        .map_err(|e| (rpc::INTERNAL_ERROR, format!("Serialization error: {e}")))
 }
 
 async fn handle_setup_init(
@@ -1148,8 +1134,8 @@ async fn handle_session_history(
         .get_projection(&session_key)
         .map_err(|e| (rpc::INTERNAL_ERROR, format!("Failed to get session: {e}")))?;
 
-    Ok(serde_json::to_value(&projection)
-        .map_err(|e| (rpc::INTERNAL_ERROR, format!("Serialization error: {e}")))?)
+    serde_json::to_value(&projection)
+        .map_err(|e| (rpc::INTERNAL_ERROR, format!("Serialization error: {e}")))
 }
 
 async fn handle_session_end(
@@ -1410,7 +1396,11 @@ async fn handle_channels_list(state: &Arc<RwLock<GatewayState>>) -> RpcResult {
     let state = state.read().await;
     let registry = state.channels.read().await;
 
-    let channels: Vec<String> = registry.list().iter().map(|s| s.to_string()).collect();
+    let channels: Vec<String> = registry
+        .list()
+        .iter()
+        .map(std::string::ToString::to_string)
+        .collect();
 
     Ok(serde_json::json!({
         "channels": channels,
@@ -1573,8 +1563,8 @@ async fn handle_tools_execute(
         .await
         .map_err(|e| (rpc::INTERNAL_ERROR, format!("Tool error: {e}")))?;
 
-    Ok(serde_json::to_value(&result)
-        .map_err(|e| (rpc::INTERNAL_ERROR, format!("Serialization error: {e}")))?)
+    serde_json::to_value(&result)
+        .map_err(|e| (rpc::INTERNAL_ERROR, format!("Serialization error: {e}")))
 }
 
 #[cfg(test)]

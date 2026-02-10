@@ -1,4 +1,4 @@
-//! AI Provider bindings for Anthropic, OpenAI, etc.
+//! AI Provider bindings for Anthropic, `OpenAI`, etc.
 
 mod anthropic;
 mod openai;

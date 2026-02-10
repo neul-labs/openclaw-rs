@@ -36,7 +36,7 @@ impl MatrixChannel {
     /// Create a new Matrix channel.
     ///
     /// # Arguments
-    /// * `homeserver_url` - URL of the Matrix homeserver (e.g., "https://matrix.org")
+    /// * `homeserver_url` - URL of the Matrix homeserver (e.g., "<https://matrix.org>")
     /// * `access_token` - Access token for authentication
     #[must_use]
     pub fn new(homeserver_url: impl Into<String>, access_token: ApiKey) -> Self {
@@ -86,7 +86,7 @@ impl MatrixChannel {
                 return Err(ChannelError::RateLimited);
             }
             let text = response.text().await.unwrap_or_default();
-            return Err(ChannelError::Network(format!("{}: {}", status, text)));
+            return Err(ChannelError::Network(format!("{status}: {text}")));
         }
 
         response
@@ -103,11 +103,11 @@ impl MatrixChannel {
 
 #[async_trait]
 impl Channel for MatrixChannel {
-    fn id(&self) -> &str {
+    fn id(&self) -> &'static str {
         "matrix"
     }
 
-    fn label(&self) -> &str {
+    fn label(&self) -> &'static str {
         "Matrix"
     }
 
@@ -176,7 +176,7 @@ impl ChannelOutbound for MatrixChannel {
     ) -> Result<DeliveryResult, ChannelError> {
         let room_id = urlencoding::encode(&ctx.chat_id);
         let txn_id = Self::txn_id();
-        let path = format!("/rooms/{}/send/m.room.message/{}", room_id, txn_id);
+        let path = format!("/rooms/{room_id}/send/m.room.message/{txn_id}");
 
         let mut content = MessageContent {
             msgtype: "m.text".to_string(),
@@ -200,7 +200,7 @@ impl ChannelOutbound for MatrixChannel {
             .await?;
 
         Ok(DeliveryResult {
-            message_id: result.event_id.clone(),
+            message_id: result.event_id,
             channel: ChannelId::matrix(),
             timestamp: chrono::Utc::now(),
             chat_id: Some(ctx.chat_id),
@@ -218,7 +218,7 @@ impl ChannelOutbound for MatrixChannel {
 
         for attachment in media {
             let txn_id = Self::txn_id();
-            let path = format!("/rooms/{}/send/m.room.message/{}", room_id, txn_id);
+            let path = format!("/rooms/{room_id}/send/m.room.message/{txn_id}");
 
             let msgtype = match attachment.kind {
                 AttachmentKind::Image => "m.image",
@@ -320,7 +320,7 @@ impl ChannelInbound for MatrixChannel {
         // Parse timestamp from origin_server_ts (milliseconds)
         let timestamp = raw
             .origin_server_ts
-            .and_then(|ts| chrono::DateTime::from_timestamp_millis(ts))
+            .and_then(chrono::DateTime::from_timestamp_millis)
             .unwrap_or_else(chrono::Utc::now);
 
         // Extract reply-to from m.relates_to

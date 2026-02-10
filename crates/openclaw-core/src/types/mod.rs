@@ -1,4 +1,4 @@
-//! Core types used throughout OpenClaw.
+//! Core types used throughout `OpenClaw`.
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -62,7 +62,7 @@ impl ChannelId {
         Self("slack".to_string())
     }
 
-    /// WhatsApp channel.
+    /// `WhatsApp` channel.
     #[must_use]
     pub fn whatsapp() -> Self {
         Self("whatsapp".to_string())
@@ -185,7 +185,7 @@ pub enum PeerType {
 impl PeerType {
     /// Get string representation.
     #[must_use]
-    pub fn as_str(&self) -> &'static str {
+    pub const fn as_str(&self) -> &'static str {
         match self {
             Self::Dm => "dm",
             Self::Group => "group",
@@ -300,7 +300,7 @@ pub struct TokenUsage {
 impl TokenUsage {
     /// Get total tokens used.
     #[must_use]
-    pub fn total(&self) -> u64 {
+    pub const fn total(&self) -> u64 {
         self.input_tokens + self.output_tokens
     }
 }

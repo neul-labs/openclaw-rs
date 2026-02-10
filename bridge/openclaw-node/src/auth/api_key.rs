@@ -23,9 +23,10 @@ pub struct NodeApiKey {
 impl NodeApiKey {
     /// Create a new API key from a string.
     ///
-    /// **Security Note**: Prefer loading keys from CredentialStore
+    /// **Security Note**: Prefer loading keys from `CredentialStore`
     /// rather than hardcoding them.
     #[napi(constructor)]
+    #[must_use]
     pub fn new(key: String) -> Self {
         Self {
             inner: ApiKey::new(key),
@@ -37,6 +38,7 @@ impl NodeApiKey {
     /// This method intentionally hides the key value to prevent
     /// accidental exposure in logs.
     #[napi]
+    #[must_use]
     pub fn to_string(&self) -> String {
         "[REDACTED]".to_string()
     }
@@ -46,24 +48,28 @@ impl NodeApiKey {
     /// **Warning**: Only use this when actually sending to an API.
     /// The verbose method name is intentional to discourage casual use.
     #[napi]
+    #[must_use]
     pub fn expose_secret_for_api_call(&self) -> String {
         self.inner.expose().to_string()
     }
 
     /// Check if the key is empty.
     #[napi]
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.inner.expose().is_empty()
     }
 
     /// Get the length of the key.
     #[napi]
+    #[must_use]
     pub fn length(&self) -> u32 {
         self.inner.expose().len() as u32
     }
 
     /// Check if the key starts with a prefix (e.g., "sk-ant-" for Anthropic).
     #[napi]
+    #[must_use]
     pub fn starts_with(&self, prefix: String) -> bool {
         self.inner.expose().starts_with(&prefix)
     }

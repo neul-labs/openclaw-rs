@@ -1,4 +1,4 @@
-//! # OpenClaw Gateway
+//! # `OpenClaw` Gateway
 //!
 //! HTTP/WebSocket gateway server with JSON-RPC protocol.
 

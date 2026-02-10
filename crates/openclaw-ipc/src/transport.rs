@@ -219,7 +219,7 @@ impl IpcTransport {
 
     /// Get the configured timeout.
     #[must_use]
-    pub fn timeout(&self) -> Duration {
+    pub const fn timeout(&self) -> Duration {
         self.timeout
     }
 
@@ -319,7 +319,7 @@ impl TransportPool {
 
     /// Get max pool size.
     #[must_use]
-    pub fn max_size(&self) -> usize {
+    pub const fn max_size(&self) -> usize {
         self.max_connections
     }
 }

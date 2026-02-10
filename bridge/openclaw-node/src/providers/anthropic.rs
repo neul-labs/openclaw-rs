@@ -29,6 +29,7 @@ impl AnthropicProvider {
     ///
     /// * `api_key` - Your Anthropic API key (starts with "sk-ant-")
     #[napi(constructor)]
+    #[must_use]
     pub fn new(api_key: String) -> Self {
         let key = ApiKey::new(api_key);
         Self {
@@ -40,6 +41,7 @@ impl AnthropicProvider {
     ///
     /// Useful for proxies or custom endpoints.
     #[napi(factory)]
+    #[must_use]
     pub fn with_base_url(api_key: String, base_url: String) -> Self {
         let key = ApiKey::new(api_key);
         Self {
@@ -49,6 +51,7 @@ impl AnthropicProvider {
 
     /// Provider name ("anthropic").
     #[napi(getter)]
+    #[must_use]
     pub fn name(&self) -> String {
         self.inner.name().to_string()
     }
@@ -80,14 +83,14 @@ impl AnthropicProvider {
             .inner
             .complete(rust_request)
             .await
-            .map_err(|e| OpenClawError::from_provider_error(e))?;
+            .map_err(OpenClawError::from_provider_error)?;
         Ok(convert_response(response))
     }
 
     /// Create a streaming completion.
     ///
     /// The callback is called for each chunk received. Chunks have:
-    /// - `chunk_type`: "content_block_delta", "message_stop", etc.
+    /// - `chunk_type`: "`content_block_delta`", "`message_stop`", etc.
     /// - `delta`: Text content (for delta chunks)
     /// - `stop_reason`: Why generation stopped (for final chunk)
     ///
@@ -158,7 +161,7 @@ impl AnthropicProvider {
     }
 }
 
-/// Convert ChunkType to JsStreamChunk.
+/// Convert `ChunkType` to `JsStreamChunk`.
 fn convert_stream_chunk(
     chunk_type: &ChunkType,
     delta: Option<&str>,
@@ -175,7 +178,7 @@ fn convert_stream_chunk(
 
     JsStreamChunk {
         chunk_type: type_str.to_string(),
-        delta: delta.map(|s| s.to_string()),
+        delta: delta.map(std::string::ToString::to_string),
         index: index.map(|i| i as u32),
         stop_reason,
     }

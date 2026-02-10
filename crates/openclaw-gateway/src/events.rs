@@ -7,8 +7,6 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use tokio::sync::broadcast;
 
-use openclaw_core::types::SessionKey;
-
 /// UI event types that can be broadcast to connected clients.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
@@ -146,6 +144,7 @@ impl EventBroadcaster {
     /// Broadcast an event to all subscribers.
     ///
     /// Returns the number of subscribers that received the event.
+    #[must_use]
     pub fn broadcast(&self, event: UiEvent) -> usize {
         let envelope = UiEventEnvelope::new(event);
         // Ignore send errors (no subscribers)

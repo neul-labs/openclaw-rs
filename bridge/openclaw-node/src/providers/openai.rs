@@ -1,4 +1,4 @@
-//! OpenAI GPT provider bindings.
+//! `OpenAI` GPT provider bindings.
 
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
@@ -13,10 +13,10 @@ use super::types::{
 };
 use crate::error::OpenClawError;
 
-/// OpenAI GPT API provider.
+/// `OpenAI` GPT API provider.
 ///
-/// Supports GPT-4o, GPT-4, GPT-3.5, and other OpenAI models.
-/// Also works with Azure OpenAI and compatible APIs.
+/// Supports GPT-4o, GPT-4, GPT-3.5, and other `OpenAI` models.
+/// Also works with Azure `OpenAI` and compatible APIs.
 #[napi]
 pub struct OpenAIProvider {
     inner: Arc<RustOpenAIProvider>,
@@ -24,12 +24,13 @@ pub struct OpenAIProvider {
 
 #[napi]
 impl OpenAIProvider {
-    /// Create a new OpenAI provider with API key.
+    /// Create a new `OpenAI` provider with API key.
     ///
     /// # Arguments
     ///
-    /// * `api_key` - Your OpenAI API key (starts with "sk-")
+    /// * `api_key` - Your `OpenAI` API key (starts with "sk-")
     #[napi(constructor)]
+    #[must_use]
     pub fn new(api_key: String) -> Self {
         let key = ApiKey::new(api_key);
         Self {
@@ -39,8 +40,9 @@ impl OpenAIProvider {
 
     /// Create a provider with custom base URL.
     ///
-    /// Useful for Azure OpenAI, LocalAI, or other compatible APIs.
+    /// Useful for Azure `OpenAI`, `LocalAI`, or other compatible APIs.
     #[napi(factory)]
+    #[must_use]
     pub fn with_base_url(api_key: String, base_url: String) -> Self {
         let key = ApiKey::new(api_key);
         Self {
@@ -50,6 +52,7 @@ impl OpenAIProvider {
 
     /// Create a provider with organization ID.
     #[napi(factory)]
+    #[must_use]
     pub fn with_org(api_key: String, org_id: String) -> Self {
         let key = ApiKey::new(api_key);
         let provider = RustOpenAIProvider::new(key).with_org_id(org_id);
@@ -60,6 +63,7 @@ impl OpenAIProvider {
 
     /// Provider name ("openai").
     #[napi(getter)]
+    #[must_use]
     pub fn name(&self) -> String {
         self.inner.name().to_string()
     }
@@ -91,14 +95,14 @@ impl OpenAIProvider {
             .inner
             .complete(rust_request)
             .await
-            .map_err(|e| OpenClawError::from_provider_error(e))?;
+            .map_err(OpenClawError::from_provider_error)?;
         Ok(convert_response(response))
     }
 
     /// Create a streaming completion.
     ///
     /// The callback is called for each chunk received. Chunks have:
-    /// - `chunk_type`: "content_block_delta", "message_stop", etc.
+    /// - `chunk_type`: "`content_block_delta`", "`message_stop`", etc.
     /// - `delta`: Text content (for delta chunks)
     /// - `stop_reason`: Why generation stopped (for final chunk)
     ///
@@ -169,7 +173,7 @@ impl OpenAIProvider {
     }
 }
 
-/// Convert ChunkType to JsStreamChunk.
+/// Convert `ChunkType` to `JsStreamChunk`.
 fn convert_stream_chunk(
     chunk_type: &ChunkType,
     delta: Option<&str>,
@@ -186,7 +190,7 @@ fn convert_stream_chunk(
 
     JsStreamChunk {
         chunk_type: type_str.to_string(),
-        delta: delta.map(|s| s.to_string()),
+        delta: delta.map(std::string::ToString::to_string),
         index: index.map(|i| i as u32),
         stop_reason,
     }

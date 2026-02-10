@@ -5,7 +5,7 @@ use anyhow::Result;
 use std::path::PathBuf;
 
 /// Doctor command arguments.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct DoctorArgs {
     /// Apply recommended fixes.
     pub repair: bool,
@@ -13,16 +13,6 @@ pub struct DoctorArgs {
     pub force: bool,
     /// Deep scan for extra services.
     pub deep: bool,
-}
-
-impl Default for DoctorArgs {
-    fn default() -> Self {
-        Self {
-            repair: false,
-            force: false,
-            deep: false,
-        }
-    }
 }
 
 /// Run health checks and optionally repair issues.
@@ -174,10 +164,10 @@ pub async fn run_doctor(args: DoctorArgs) -> Result<()> {
     if issues_found == 0 {
         ui::success("All checks passed!");
     } else {
-        ui::warning(&format!("{} issue(s) found", issues_found));
+        ui::warning(&format!("{issues_found} issue(s) found"));
 
         if args.repair {
-            ui::info(&format!("{} repair(s) made", repairs_made));
+            ui::info(&format!("{repairs_made} repair(s) made"));
         } else {
             ui::info("Run with --repair to fix issues automatically");
         }
@@ -203,7 +193,7 @@ fn check_config() -> CheckResult {
 
     match openclaw_core::Config::load_default() {
         Ok(_) => CheckResult::Ok,
-        Err(e) => CheckResult::Error(format!("Invalid config: {}", e)),
+        Err(e) => CheckResult::Error(format!("Invalid config: {e}")),
     }
 }
 
@@ -240,7 +230,7 @@ fn check_credentials() -> CheckResult {
 
     // Check if any credential files exist
     let entries = std::fs::read_dir(&cred_path).ok();
-    let has_creds = entries.map(|e| e.count() > 0).unwrap_or(false);
+    let has_creds = entries.is_some_and(|e| e.count() > 0);
 
     if !has_creds {
         return CheckResult::Warning("No API keys stored".to_string());
@@ -319,8 +309,7 @@ fn check_shell_completion() -> CheckResult {
     // Check for completion files
     let has_completion = std::fs::read_dir(&completion_dir)
         .ok()
-        .map(|e| e.count() > 0)
-        .unwrap_or(false);
+        .is_some_and(|e| e.count() > 0);
 
     if has_completion {
         CheckResult::Ok
@@ -330,7 +319,7 @@ fn check_shell_completion() -> CheckResult {
 }
 
 /// Check for multiple gateway instances.
-fn check_multiple_gateways() -> CheckResult {
+const fn check_multiple_gateways() -> CheckResult {
     // This is a simple check - in production, would use platform-specific methods
     CheckResult::Ok
 }
@@ -387,9 +376,7 @@ fn get_state_dir() -> PathBuf {
         return PathBuf::from(state_dir);
     }
 
-    dirs::home_dir()
-        .map(|h| h.join(".openclaw"))
-        .unwrap_or_else(|| PathBuf::from(".openclaw"))
+    dirs::home_dir().map_or_else(|| PathBuf::from(".openclaw"), |h| h.join(".openclaw"))
 }
 
 /// Get the credentials directory path.

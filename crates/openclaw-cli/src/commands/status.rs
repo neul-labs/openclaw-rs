@@ -5,21 +5,12 @@ use anyhow::Result;
 use std::time::Duration;
 
 /// Status command arguments.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct StatusArgs {
     /// Show all details.
     pub all: bool,
     /// Probe services for connectivity.
     pub deep: bool,
-}
-
-impl Default for StatusArgs {
-    fn default() -> Self {
-        Self {
-            all: false,
-            deep: false,
-        }
-    }
 }
 
 /// Run the status command.
@@ -51,21 +42,18 @@ pub async fn run_status(args: StatusArgs) -> Result<()> {
     // Config status
     println!();
     ui::info("Configuration");
-    match openclaw_core::Config::load_default() {
-        Ok(config) => {
-            ui::health_check("Config", HealthStatus::Ok, Some("loaded"));
-            if args.all {
-                ui::kv("  Gateway Port", &config.gateway.port.to_string());
-                // Show default agent model if configured
-                if let Some(default_agent) = config.agents.get("default") {
-                    ui::kv("  Default Model", &default_agent.model);
-                }
+    if let Ok(config) = openclaw_core::Config::load_default() {
+        ui::health_check("Config", HealthStatus::Ok, Some("loaded"));
+        if args.all {
+            ui::kv("  Gateway Port", &config.gateway.port.to_string());
+            // Show default agent model if configured
+            if let Some(default_agent) = config.agents.get("default") {
+                ui::kv("  Default Model", &default_agent.model);
             }
         }
-        Err(_) => {
-            ui::health_check("Config", HealthStatus::Warning, Some("not found"));
-            ui::info("  Run 'openclaw onboard' to configure");
-        }
+    } else {
+        ui::health_check("Config", HealthStatus::Warning, Some("not found"));
+        ui::info("  Run 'openclaw onboard' to configure");
     }
 
     // Sandbox status
@@ -95,20 +83,20 @@ pub async fn run_status(args: StatusArgs) -> Result<()> {
 
     if cred_path.exists() {
         let count = std::fs::read_dir(&cred_path)
-            .map(|entries| entries.filter_map(|e| e.ok()).count())
+            .map(|entries| entries.filter_map(std::result::Result::ok).count())
             .unwrap_or(0);
 
         if count > 0 {
             ui::health_check(
                 "Credentials",
                 HealthStatus::Ok,
-                Some(&format!("{} provider(s)", count)),
+                Some(&format!("{count} provider(s)")),
             );
 
             if args.all {
                 // List providers
                 if let Ok(entries) = std::fs::read_dir(&cred_path) {
-                    for entry in entries.filter_map(|e| e.ok()) {
+                    for entry in entries.filter_map(std::result::Result::ok) {
                         if let Some(name) = entry.file_name().to_str() {
                             if let Some(provider) = name.strip_suffix(".enc") {
                                 ui::kv("  ", provider);
@@ -156,7 +144,7 @@ async fn check_gateway_status(deep: bool) -> GatewayStatus {
     let port = get_gateway_port();
 
     // Try to connect
-    match tokio::net::TcpStream::connect(format!("127.0.0.1:{}", port)).await {
+    match tokio::net::TcpStream::connect(format!("127.0.0.1:{port}")).await {
         Ok(_) => {
             if deep {
                 // Try to get version from health endpoint
@@ -207,7 +195,7 @@ async fn probe_gateway_version(port: u16) -> Result<String, String> {
         .map_err(|e| e.to_string())?;
 
     let resp = client
-        .get(format!("http://127.0.0.1:{}/health", port))
+        .get(format!("http://127.0.0.1:{port}/health"))
         .send()
         .await
         .map_err(|e| e.to_string())?;
@@ -232,7 +220,7 @@ async fn probe_gateway_health() -> Result<String, String> {
         .map_err(|e| e.to_string())?;
 
     let resp = client
-        .get(format!("http://127.0.0.1:{}/health", port))
+        .get(format!("http://127.0.0.1:{port}/health"))
         .send()
         .await
         .map_err(|e| e.to_string())?;

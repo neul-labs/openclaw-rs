@@ -186,7 +186,7 @@ fn validate_json_structure(
                 ));
             }
         }
-        Some("number") | Some("integer") => {
+        Some("number" | "integer") => {
             if !params.is_number() {
                 return Err(ValidationError::SchemaViolation(
                     "Expected number".to_string(),

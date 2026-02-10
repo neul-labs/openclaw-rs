@@ -57,7 +57,7 @@ pub struct Allowlist {
 impl Allowlist {
     /// Create a new allowlist (default deny).
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             entries: Vec::new(),
             default_allow: false,
@@ -66,7 +66,7 @@ impl Allowlist {
 
     /// Create an open allowlist (default allow).
     #[must_use]
-    pub fn open() -> Self {
+    pub const fn open() -> Self {
         Self {
             entries: Vec::new(),
             default_allow: true,

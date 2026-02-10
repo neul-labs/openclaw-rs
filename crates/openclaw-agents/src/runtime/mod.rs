@@ -93,14 +93,14 @@ impl AgentRuntime {
 
     /// Set max tokens.
     #[must_use]
-    pub fn with_max_tokens(mut self, max_tokens: u32) -> Self {
+    pub const fn with_max_tokens(mut self, max_tokens: u32) -> Self {
         self.max_tokens = max_tokens;
         self
     }
 
     /// Set temperature.
     #[must_use]
-    pub fn with_temperature(mut self, temperature: f32) -> Self {
+    pub const fn with_temperature(mut self, temperature: f32) -> Self {
         self.temperature = temperature;
         self
     }
@@ -114,7 +114,7 @@ impl AgentRuntime {
 
     /// Get the tool registry.
     #[must_use]
-    pub fn tools(&self) -> &Arc<ToolRegistry> {
+    pub const fn tools(&self) -> &Arc<ToolRegistry> {
         &self.tools
     }
 
@@ -132,13 +132,13 @@ impl AgentRuntime {
 
     /// Get max tokens.
     #[must_use]
-    pub fn max_tokens(&self) -> u32 {
+    pub const fn max_tokens(&self) -> u32 {
         self.max_tokens
     }
 
     /// Get temperature.
     #[must_use]
-    pub fn temperature(&self) -> f32 {
+    pub const fn temperature(&self) -> f32 {
         self.temperature
     }
 

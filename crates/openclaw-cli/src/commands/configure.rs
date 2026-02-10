@@ -5,16 +5,10 @@ use anyhow::Result;
 use std::path::PathBuf;
 
 /// Configure command arguments.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ConfigureArgs {
     /// Section to configure.
     pub section: Option<String>,
-}
-
-impl Default for ConfigureArgs {
-    fn default() -> Self {
-        Self { section: None }
-    }
 }
 
 /// Run the configure command.
@@ -51,7 +45,7 @@ pub async fn run_configure(args: ConfigureArgs) -> Result<()> {
         "channels" => configure_channels().await?,
         "workspace" => configure_workspace().await?,
         _ => {
-            ui::error(&format!("Unknown section: {}", section));
+            ui::error(&format!("Unknown section: {section}"));
             ui::info("Valid sections: auth, gateway, agents, channels, workspace");
         }
     }
@@ -77,7 +71,7 @@ async fn configure_auth() -> Result<()> {
         _ => "openrouter",
     };
 
-    let api_key = prompts::password(&format!("Enter {} API key", provider_name))?;
+    let api_key = prompts::password(&format!("Enter {provider_name} API key"))?;
 
     // Store the credential
     let cred_path = get_credentials_path();
@@ -88,7 +82,7 @@ async fn configure_auth() -> Result<()> {
     let store = openclaw_core::CredentialStore::new(encryption_key, cred_path);
 
     store.store(provider_name, &openclaw_core::ApiKey::new(api_key))?;
-    ui::success(&format!("{} credentials stored", provider_name));
+    ui::success(&format!("{provider_name} credentials stored"));
 
     Ok(())
 }
@@ -104,7 +98,7 @@ async fn configure_gateway() -> Result<()> {
     let current_port = config
         .get("gateway")
         .and_then(|g| g.get("port"))
-        .and_then(|p| p.as_u64())
+        .and_then(serde_json::Value::as_u64)
         .unwrap_or(18789);
 
     let port_str = prompts::input_with_default("Gateway port", &current_port.to_string())?;
@@ -178,7 +172,7 @@ async fn configure_agents() -> Result<()> {
         .insert("model".to_string(), serde_json::json!(model));
 
     save_config(&config_path, &config)?;
-    ui::success(&format!("Default model set to {}", model));
+    ui::success(&format!("Default model set to {model}"));
 
     Ok(())
 }
@@ -265,9 +259,10 @@ async fn configure_channels() -> Result<()> {
 async fn configure_workspace() -> Result<()> {
     ui::header("Workspace Configuration");
 
-    let default_workspace = dirs::home_dir()
-        .map(|h| h.join(".openclaw").join("workspace"))
-        .unwrap_or_else(|| PathBuf::from(".openclaw/workspace"));
+    let default_workspace = dirs::home_dir().map_or_else(
+        || PathBuf::from(".openclaw/workspace"),
+        |h| h.join(".openclaw").join("workspace"),
+    );
 
     let workspace_str = prompts::input_with_default(
         "Workspace directory",
@@ -309,16 +304,18 @@ fn get_config_path() -> PathBuf {
         return PathBuf::from(path);
     }
 
-    dirs::home_dir()
-        .map(|h| h.join(".openclaw").join("openclaw.json"))
-        .unwrap_or_else(|| PathBuf::from(".openclaw/openclaw.json"))
+    dirs::home_dir().map_or_else(
+        || PathBuf::from(".openclaw/openclaw.json"),
+        |h| h.join(".openclaw").join("openclaw.json"),
+    )
 }
 
 /// Get the credentials directory path.
 fn get_credentials_path() -> PathBuf {
-    dirs::home_dir()
-        .map(|h| h.join(".openclaw").join("credentials"))
-        .unwrap_or_else(|| PathBuf::from(".openclaw/credentials"))
+    dirs::home_dir().map_or_else(
+        || PathBuf::from(".openclaw/credentials"),
+        |h| h.join(".openclaw").join("credentials"),
+    )
 }
 
 /// Load configuration from file.

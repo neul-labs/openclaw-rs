@@ -5,7 +5,7 @@ use anyhow::Result;
 use std::path::PathBuf;
 
 /// Config command arguments.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ConfigArgs {
     /// Get a specific key.
     pub get: Option<String>,
@@ -15,17 +15,6 @@ pub struct ConfigArgs {
     pub show: bool,
     /// Validate configuration.
     pub validate: bool,
-}
-
-impl Default for ConfigArgs {
-    fn default() -> Self {
-        Self {
-            get: None,
-            set: None,
-            show: false,
-            validate: false,
-        }
-    }
 }
 
 /// Run the config command.
@@ -65,7 +54,7 @@ fn show_config(config_path: &PathBuf) -> Result<()> {
         }
         Err(_) => {
             // JSON5 format, just print as-is
-            println!("{}", content);
+            println!("{content}");
         }
     }
 
@@ -91,7 +80,7 @@ fn get_config_value(config_path: &PathBuf, key: &str) -> Result<()> {
                 if let Some(v) = map.get(*part) {
                     current = v;
                 } else {
-                    ui::error(&format!("Key not found: {}", key));
+                    ui::error(&format!("Key not found: {key}"));
                     return Ok(());
                 }
             }
@@ -100,16 +89,16 @@ fn get_config_value(config_path: &PathBuf, key: &str) -> Result<()> {
                     if let Some(v) = arr.get(idx) {
                         current = v;
                     } else {
-                        ui::error(&format!("Index out of bounds: {}", part));
+                        ui::error(&format!("Index out of bounds: {part}"));
                         return Ok(());
                     }
                 } else {
-                    ui::error(&format!("Invalid array index: {}", part));
+                    ui::error(&format!("Invalid array index: {part}"));
                     return Ok(());
                 }
             }
             _ => {
-                ui::error(&format!("Cannot navigate into non-object: {}", part));
+                ui::error(&format!("Cannot navigate into non-object: {part}"));
                 return Ok(());
             }
         }
@@ -117,9 +106,9 @@ fn get_config_value(config_path: &PathBuf, key: &str) -> Result<()> {
 
     // Print the value
     match current {
-        serde_json::Value::String(s) => println!("{}", s),
-        serde_json::Value::Number(n) => println!("{}", n),
-        serde_json::Value::Bool(b) => println!("{}", b),
+        serde_json::Value::String(s) => println!("{s}"),
+        serde_json::Value::Number(n) => println!("{n}"),
+        serde_json::Value::Bool(b) => println!("{b}"),
         serde_json::Value::Null => println!("null"),
         _ => println!("{}", serde_json::to_string_pretty(current)?),
     }
@@ -154,7 +143,7 @@ fn set_config_value(config_path: &PathBuf, kv: &str) -> Result<()> {
     std::fs::create_dir_all(config_path.parent().unwrap())?;
     std::fs::write(config_path, serde_json::to_string_pretty(&config)?)?;
 
-    ui::success(&format!("Set {} = {}", key, new_value));
+    ui::success(&format!("Set {key} = {new_value}"));
 
     Ok(())
 }
@@ -262,12 +251,12 @@ fn validate_config(config_path: &PathBuf) -> Result<()> {
                     ui::success("Schema: Configuration is valid");
                 }
                 Err(e) => {
-                    ui::error(&format!("Schema error: {}", e));
+                    ui::error(&format!("Schema error: {e}"));
                 }
             }
         }
         Err(e) => {
-            ui::error(&format!("Syntax error: {}", e));
+            ui::error(&format!("Syntax error: {e}"));
         }
     }
 
@@ -284,7 +273,8 @@ fn get_config_path() -> PathBuf {
         return PathBuf::from(state_dir).join("openclaw.json");
     }
 
-    dirs::home_dir()
-        .map(|h| h.join(".openclaw").join("openclaw.json"))
-        .unwrap_or_else(|| PathBuf::from(".openclaw/openclaw.json"))
+    dirs::home_dir().map_or_else(
+        || PathBuf::from(".openclaw/openclaw.json"),
+        |h| h.join(".openclaw").join("openclaw.json"),
+    )
 }

@@ -41,19 +41,19 @@ pub struct AuthConfig {
     pub public_methods: Vec<String>,
 }
 
-fn default_enabled() -> bool {
+const fn default_enabled() -> bool {
     true
 }
 
-fn default_true() -> bool {
+const fn default_true() -> bool {
     true
 }
 
-fn default_token_expiry() -> u64 {
+const fn default_token_expiry() -> u64 {
     DEFAULT_TOKEN_EXPIRY_HOURS
 }
 
-fn default_refresh_expiry() -> u64 {
+const fn default_refresh_expiry() -> u64 {
     DEFAULT_REFRESH_EXPIRY_DAYS
 }
 
@@ -90,13 +90,13 @@ impl AuthConfig {
 
     /// Get token expiry as Duration.
     #[must_use]
-    pub fn token_expiry(&self) -> Duration {
+    pub const fn token_expiry(&self) -> Duration {
         Duration::from_secs(self.token_expiry_hours * 3600)
     }
 
     /// Get refresh token expiry as Duration.
     #[must_use]
-    pub fn refresh_expiry(&self) -> Duration {
+    pub const fn refresh_expiry(&self) -> Duration {
         Duration::from_secs(self.refresh_expiry_days * 24 * 3600)
     }
 
@@ -133,7 +133,7 @@ pub struct AuthConfigBuilder {
 impl AuthConfigBuilder {
     /// Set whether auth is enabled.
     #[must_use]
-    pub fn enabled(mut self, enabled: bool) -> Self {
+    pub const fn enabled(mut self, enabled: bool) -> Self {
         self.config.enabled = enabled;
         self
     }
@@ -147,28 +147,28 @@ impl AuthConfigBuilder {
 
     /// Set token expiry in hours.
     #[must_use]
-    pub fn token_expiry_hours(mut self, hours: u64) -> Self {
+    pub const fn token_expiry_hours(mut self, hours: u64) -> Self {
         self.config.token_expiry_hours = hours;
         self
     }
 
     /// Set refresh token expiry in days.
     #[must_use]
-    pub fn refresh_expiry_days(mut self, days: u64) -> Self {
+    pub const fn refresh_expiry_days(mut self, days: u64) -> Self {
         self.config.refresh_expiry_days = days;
         self
     }
 
     /// Set whether RPC requires auth.
     #[must_use]
-    pub fn require_auth_for_rpc(mut self, required: bool) -> Self {
+    pub const fn require_auth_for_rpc(mut self, required: bool) -> Self {
         self.config.require_auth_for_rpc = required;
         self
     }
 
     /// Set whether WebSocket requires auth.
     #[must_use]
-    pub fn require_auth_for_ws(mut self, required: bool) -> Self {
+    pub const fn require_auth_for_ws(mut self, required: bool) -> Self {
         self.config.require_auth_for_ws = required;
         self
     }

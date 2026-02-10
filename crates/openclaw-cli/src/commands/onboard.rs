@@ -9,7 +9,7 @@ use openclaw_core::{ApiKey, Config, CredentialStore};
 use std::path::PathBuf;
 
 /// Onboard command arguments.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct OnboardArgs {
     /// Non-interactive mode.
     pub non_interactive: bool,
@@ -23,19 +23,6 @@ pub struct OnboardArgs {
     pub api_key: Option<String>,
     /// Install daemon after setup.
     pub install_daemon: bool,
-}
-
-impl Default for OnboardArgs {
-    fn default() -> Self {
-        Self {
-            non_interactive: false,
-            accept_risk: false,
-            flow: None,
-            auth_choice: None,
-            api_key: None,
-            install_daemon: false,
-        }
-    }
 }
 
 /// Run the onboarding wizard.
@@ -99,7 +86,7 @@ pub async fn run_onboard(args: OnboardArgs) -> Result<()> {
         prompts::select_onboard_flow()?
     };
 
-    ui::info(&format!("Using {} mode", flow));
+    ui::info(&format!("Using {flow} mode"));
 
     // Step 4: Gateway configuration
     ui::header("Gateway Configuration");
@@ -132,7 +119,7 @@ pub async fn run_onboard(args: OnboardArgs) -> Result<()> {
         }
     };
 
-    ui::success(&format!("Gateway configured: {}:{}", bind_address, port));
+    ui::success(&format!("Gateway configured: {bind_address}:{port}"));
 
     // Step 5: Authentication setup
     ui::header("Authentication Setup");
@@ -157,13 +144,15 @@ pub async fn run_onboard(args: OnboardArgs) -> Result<()> {
         prompts::select_auth_provider()?
     };
 
-    if provider != AuthProvider::Skip {
+    if provider == AuthProvider::Skip {
+        ui::info("Skipping authentication setup");
+    } else {
         let api_key = if let Some(key) = &args.api_key {
             key.clone()
         } else if args.non_interactive {
             anyhow::bail!("API key required in non-interactive mode");
         } else {
-            prompts::password(&format!("Enter {} API key", provider))?
+            prompts::password(&format!("Enter {provider} API key"))?
         };
 
         // Store the credential
@@ -182,9 +171,7 @@ pub async fn run_onboard(args: OnboardArgs) -> Result<()> {
         };
 
         store.store(provider_name, &ApiKey::new(api_key))?;
-        ui::success(&format!("{} credentials stored", provider));
-    } else {
-        ui::info("Skipping authentication setup");
+        ui::success(&format!("{provider} credentials stored"));
     }
 
     // Step 6: Workspace setup
@@ -227,7 +214,7 @@ pub async fn run_onboard(args: OnboardArgs) -> Result<()> {
     println!();
     ui::kv("Config", &config_path.display().to_string());
     ui::kv("Workspace", &workspace.display().to_string());
-    ui::kv("Gateway", &format!("{}:{}", bind_address, port));
+    ui::kv("Gateway", &format!("{bind_address}:{port}"));
 
     println!();
     ui::info("Next steps:");
@@ -248,9 +235,10 @@ fn get_config_path() -> PathBuf {
         return PathBuf::from(state_dir).join("openclaw.json");
     }
 
-    dirs::home_dir()
-        .map(|h| h.join(".openclaw").join("openclaw.json"))
-        .unwrap_or_else(|| PathBuf::from(".openclaw/openclaw.json"))
+    dirs::home_dir().map_or_else(
+        || PathBuf::from(".openclaw/openclaw.json"),
+        |h| h.join(".openclaw").join("openclaw.json"),
+    )
 }
 
 /// Get the credentials directory path.
@@ -259,16 +247,18 @@ fn get_credentials_path() -> PathBuf {
         return PathBuf::from(path);
     }
 
-    dirs::home_dir()
-        .map(|h| h.join(".openclaw").join("credentials"))
-        .unwrap_or_else(|| PathBuf::from(".openclaw/credentials"))
+    dirs::home_dir().map_or_else(
+        || PathBuf::from(".openclaw/credentials"),
+        |h| h.join(".openclaw").join("credentials"),
+    )
 }
 
 /// Get the workspace path.
 fn get_workspace_path() -> PathBuf {
-    dirs::home_dir()
-        .map(|h| h.join(".openclaw").join("workspace"))
-        .unwrap_or_else(|| PathBuf::from(".openclaw/workspace"))
+    dirs::home_dir().map_or_else(
+        || PathBuf::from(".openclaw/workspace"),
+        |h| h.join(".openclaw").join("workspace"),
+    )
 }
 
 /// Create a config struct from onboard settings.

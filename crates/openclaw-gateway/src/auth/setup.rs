@@ -2,8 +2,6 @@
 
 use std::time::{Duration, Instant};
 
-use chrono::{DateTime, Utc};
-use rand::Rng;
 use serde::{Deserialize, Serialize};
 
 use super::AuthError;
@@ -134,6 +132,7 @@ impl BootstrapManager {
     }
 
     /// Get setup status.
+    #[must_use]
     pub fn status(&self, user_store: &UserStore, base_url: Option<&str>) -> SetupStatus {
         let initialized = !user_store.is_empty();
         let bootstrap_active = self
@@ -206,10 +205,7 @@ impl BootstrapManager {
             println!("│  Or via CLI:                                             │");
             println!("│  openclaw admin create --username admin --password ...   │");
             println!("│                                                          │");
-            println!(
-                "│  Bootstrap token expires in {} minutes.                  │",
-                minutes
-            );
+            println!("│  Bootstrap token expires in {minutes} minutes.                  │");
             println!("└─────────────────────────────────────────────────────────┘");
             println!();
         }
@@ -277,7 +273,7 @@ pub fn generate_password(length: usize) -> String {
 fn base64_url_encode(data: &[u8]) -> String {
     const ALPHABET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-    let mut result = String::with_capacity((data.len() * 4 + 2) / 3);
+    let mut result = String::with_capacity((data.len() * 4).div_ceil(3));
 
     for chunk in data.chunks(3) {
         let b0 = chunk[0] as usize;

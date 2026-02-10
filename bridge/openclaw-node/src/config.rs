@@ -8,7 +8,7 @@ use openclaw_core::config::Config;
 
 use crate::error::OpenClawError;
 
-/// Load and parse an OpenClaw configuration file.
+/// Load and parse an `OpenClaw` configuration file.
 ///
 /// Returns the configuration as a JSON string.
 #[napi]
@@ -36,6 +36,7 @@ pub fn load_default_config() -> Result<String> {
 ///
 /// Returns JSON: `{"valid": true, "errors": []}` or `{"valid": false, "errors": ["..."]}`
 #[napi]
+#[must_use]
 pub fn validate_config(path: String) -> String {
     match Config::load(&PathBuf::from(&path)) {
         Ok(_) => serde_json::json!({"valid": true, "errors": []}).to_string(),

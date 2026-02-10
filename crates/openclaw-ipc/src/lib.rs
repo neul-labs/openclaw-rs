@@ -1,4 +1,4 @@
-//! # OpenClaw IPC
+//! # `OpenClaw` IPC
 //!
 //! IPC message types and nng transport for daemon communication.
 //!

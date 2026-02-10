@@ -263,6 +263,7 @@ impl JwtManager {
     /// Extract token from Authorization header.
     ///
     /// Expects format: "Bearer <token>"
+    #[must_use]
     pub fn extract_from_header(header: &str) -> Option<&str> {
         header
             .strip_prefix("Bearer ")

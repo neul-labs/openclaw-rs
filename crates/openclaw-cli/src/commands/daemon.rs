@@ -307,9 +307,10 @@ fn uninstall_launchd_service() -> Result<()> {
 
 #[cfg(target_os = "linux")]
 fn get_systemd_service_path() -> PathBuf {
-    dirs::home_dir()
-        .map(|h| h.join(".config/systemd/user/openclaw.service"))
-        .unwrap_or_else(|| PathBuf::from("openclaw.service"))
+    dirs::home_dir().map_or_else(
+        || PathBuf::from("openclaw.service"),
+        |h| h.join(".config/systemd/user/openclaw.service"),
+    )
 }
 
 #[cfg(target_os = "linux")]
@@ -320,7 +321,7 @@ fn install_systemd_service() -> Result<()> {
     let binary_path = std::env::current_exe()?;
 
     let service_content = format!(
-        r#"[Unit]
+        r"[Unit]
 Description=OpenClaw Gateway
 After=network.target
 
@@ -332,7 +333,7 @@ RestartSec=5
 
 [Install]
 WantedBy=default.target
-"#,
+",
         binary_path.display()
     );
 

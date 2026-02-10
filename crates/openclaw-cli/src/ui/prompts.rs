@@ -117,8 +117,8 @@ pub enum OnboardFlow {
 impl std::fmt::Display for OnboardFlow {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            OnboardFlow::QuickStart => write!(f, "QuickStart (recommended)"),
-            OnboardFlow::Advanced => write!(f, "Advanced"),
+            Self::QuickStart => write!(f, "QuickStart (recommended)"),
+            Self::Advanced => write!(f, "Advanced"),
         }
     }
 }
@@ -150,10 +150,10 @@ pub enum AuthProvider {
 impl std::fmt::Display for AuthProvider {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            AuthProvider::Anthropic => write!(f, "Anthropic (Claude)"),
-            AuthProvider::OpenAI => write!(f, "OpenAI (GPT)"),
-            AuthProvider::OpenRouter => write!(f, "OpenRouter"),
-            AuthProvider::Skip => write!(f, "Skip for now"),
+            Self::Anthropic => write!(f, "Anthropic (Claude)"),
+            Self::OpenAI => write!(f, "OpenAI (GPT)"),
+            Self::OpenRouter => write!(f, "OpenRouter"),
+            Self::Skip => write!(f, "Skip for now"),
         }
     }
 }

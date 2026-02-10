@@ -1,6 +1,6 @@
 //! Configuration loading and validation.
 //!
-//! Supports JSON5 format for compatibility with existing OpenClaw config.
+//! Supports JSON5 format for compatibility with existing `OpenClaw` config.
 //! Config location: `~/.openclaw/openclaw.json`
 
 use serde::{Deserialize, Serialize};
@@ -30,9 +30,10 @@ pub enum ConfigError {
 
 /// Main configuration structure.
 ///
-/// Matches the existing OpenClaw JSON5 config schema.
+/// Matches the existing `OpenClaw` JSON5 config schema.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[derive(Default)]
 pub struct Config {
     /// Gateway configuration.
     #[serde(default)]
@@ -53,18 +54,6 @@ pub struct Config {
     /// Global settings.
     #[serde(default)]
     pub settings: GlobalSettings,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Self {
-            gateway: GatewayConfig::default(),
-            agents: HashMap::new(),
-            channels: ChannelsConfig::default(),
-            providers: ProvidersConfig::default(),
-            settings: GlobalSettings::default(),
-        }
-    }
 }
 
 impl Config {
@@ -117,7 +106,7 @@ impl Config {
         Self::state_dir().join("openclaw.json")
     }
 
-    /// Get the OpenClaw state directory.
+    /// Get the `OpenClaw` state directory.
     ///
     /// Uses `OPENCLAW_STATE_DIR` env var if set, otherwise `~/.openclaw`.
     #[must_use]
@@ -212,15 +201,15 @@ impl Default for GatewayConfig {
     }
 }
 
-fn default_port() -> u16 {
+const fn default_port() -> u16 {
     18789
 }
 
-fn default_timeout() -> u64 {
+const fn default_timeout() -> u64 {
     300
 }
 
-fn default_true() -> bool {
+const fn default_true() -> bool {
     true
 }
 
@@ -292,11 +281,11 @@ fn default_provider() -> String {
     "anthropic".to_string()
 }
 
-fn default_max_tokens() -> u32 {
+const fn default_max_tokens() -> u32 {
     4096
 }
 
-fn default_temperature() -> f32 {
+const fn default_temperature() -> f32 {
     0.7
 }
 
@@ -408,7 +397,7 @@ pub struct ProvidersConfig {
     #[serde(default)]
     pub anthropic: Option<AnthropicConfig>,
 
-    /// OpenAI configuration.
+    /// `OpenAI` configuration.
     #[serde(default)]
     pub openai: Option<OpenAIConfig>,
 
@@ -429,7 +418,7 @@ pub struct AnthropicConfig {
     pub base_url: Option<String>,
 }
 
-/// OpenAI provider configuration.
+/// `OpenAI` provider configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OpenAIConfig {
@@ -461,6 +450,7 @@ fn default_ollama_url() -> String {
 /// Global settings.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[derive(Default)]
 pub struct GlobalSettings {
     /// Enable debug logging.
     #[serde(default)]
@@ -473,16 +463,6 @@ pub struct GlobalSettings {
     /// Telemetry enabled.
     #[serde(default)]
     pub telemetry: bool,
-}
-
-impl Default for GlobalSettings {
-    fn default() -> Self {
-        Self {
-            debug: false,
-            log_format: LogFormat::default(),
-            telemetry: false,
-        }
-    }
 }
 
 /// Log format.

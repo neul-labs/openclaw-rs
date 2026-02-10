@@ -29,7 +29,7 @@ pub fn header(msg: &str) {
 
 /// Print a step in a process.
 pub fn step(num: usize, total: usize, msg: &str) {
-    println!("{} {}", style(format!("[{}/{}]", num, total)).dim(), msg);
+    println!("{} {}", style(format!("[{num}/{total}]")).dim(), msg);
 }
 
 /// Health check result display.
@@ -48,7 +48,7 @@ pub fn health_check(name: &str, status: HealthStatus, detail: Option<&str>) {
         HealthStatus::Unknown => "UNKNOWN",
     };
 
-    print!("  {} {}: ", icon, name);
+    print!("  {icon} {name}: ");
     print!("{}", status_style.apply_to(status_text));
 
     if let Some(d) = detail {
@@ -71,7 +71,7 @@ pub fn clear() {
     let _ = Term::stdout().clear_screen();
 }
 
-/// Print the OpenClaw banner.
+/// Print the `OpenClaw` banner.
 pub fn banner() {
     println!(
         "{}",
@@ -99,7 +99,7 @@ pub fn kv(key: &str, value: &str) {
 /// Print a table row.
 pub fn table_row(cols: &[(&str, usize)]) {
     for (text, width) in cols {
-        print!("{:width$}", text, width = width);
+        print!("{text:width$}");
     }
     println!();
 }

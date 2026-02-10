@@ -27,7 +27,7 @@ pub enum EventStoreError {
     NotFound(String),
 }
 
-/// Unique event identifier (BLAKE2b hash).
+/// Unique event identifier (`BLAKE2b` hash).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct EventId(pub [u8; 32]);
 
@@ -418,7 +418,7 @@ impl EventStore {
     pub fn list_sessions(&self) -> Result<Vec<SessionKey>, EventStoreError> {
         let mut sessions = Vec::new();
 
-        for result in self.sessions_tree.iter() {
+        for result in &self.sessions_tree {
             let (key, _) = result?;
             if let Ok(key_str) = std::str::from_utf8(&key) {
                 sessions.push(SessionKey::new(key_str));

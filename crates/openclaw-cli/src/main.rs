@@ -1,4 +1,4 @@
-//! OpenClaw CLI - Command-line interface for OpenClaw.
+//! `OpenClaw` CLI - Command-line interface for `OpenClaw`.
 
 mod commands;
 mod ui;
@@ -281,26 +281,22 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     // If no command, show help or run onboard for first-time users
-    let command = match cli.command {
-        Some(cmd) => cmd,
-        None => {
-            // Check if this is first run
-            let config_exists = openclaw_core::Config::load_default().is_ok();
+    let command = if let Some(cmd) = cli.command {
+        cmd
+    } else {
+        // Check if this is first run
+        let config_exists = openclaw_core::Config::load_default().is_ok();
 
-            if config_exists {
-                // Show status by default
-                commands::run_status(commands::status::StatusArgs::default()).await?;
-                return Ok(());
-            } else {
-                // First run - suggest onboarding
-                ui::banner();
-                ui::info("Welcome to OpenClaw!");
-                ui::info(
-                    "Run 'openclaw onboard' to get started, or 'openclaw --help' for all commands.",
-                );
-                return Ok(());
-            }
+        if config_exists {
+            // Show status by default
+            commands::run_status(commands::status::StatusArgs::default()).await?;
+            return Ok(());
         }
+        // First run - suggest onboarding
+        ui::banner();
+        ui::info("Welcome to OpenClaw!");
+        ui::info("Run 'openclaw onboard' to get started, or 'openclaw --help' for all commands.");
+        return Ok(());
     };
 
     match command {
@@ -380,7 +376,7 @@ async fn main() -> anyhow::Result<()> {
                 },
                 Some(ConfigCommands::Set { key, value }) => commands::config::ConfigArgs {
                     get: None,
-                    set: Some(format!("{}={}", key, value)),
+                    set: Some(format!("{key}={value}")),
                     show: false,
                     validate: false,
                 },

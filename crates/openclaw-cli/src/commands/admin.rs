@@ -2,7 +2,7 @@
 
 use std::path::PathBuf;
 
-use openclaw_gateway::auth::{AuthConfig, User, UserRole, UserStore, setup::generate_password};
+use openclaw_gateway::auth::{User, UserRole, UserStore, setup::generate_password};
 
 use crate::ui;
 
@@ -53,7 +53,7 @@ pub async fn run_admin(args: AdminArgs) -> anyhow::Result<()> {
 
     // Open user store
     let store = UserStore::open(&data_dir)
-        .map_err(|e| anyhow::anyhow!("Failed to open user store: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Failed to open user store: {e}"))?;
 
     match args.action {
         AdminAction::Create {
@@ -93,16 +93,13 @@ fn create_user(
 ) -> anyhow::Result<()> {
     // Parse role
     let role: UserRole = role_str.parse().map_err(|_| {
-        anyhow::anyhow!(
-            "Invalid role: {}. Use: admin, operator, or viewer",
-            role_str
-        )
+        anyhow::anyhow!("Invalid role: {role_str}. Use: admin, operator, or viewer")
     })?;
 
     // Get or generate password
     let password = if gen_pwd {
         let pwd = generate_password(16);
-        ui::success(&format!("Generated password: {}", pwd));
+        ui::success(&format!("Generated password: {pwd}"));
         pwd
     } else {
         password.map(String::from).ok_or_else(|| {
@@ -112,13 +109,13 @@ fn create_user(
 
     // Create user
     let user = User::new(username, &password, role)
-        .map_err(|e| anyhow::anyhow!("Failed to create user: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Failed to create user: {e}"))?;
 
     store
         .create(&user)
-        .map_err(|e| anyhow::anyhow!("Failed to save user: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Failed to save user: {e}"))?;
 
-    ui::success(&format!("Created user '{}' with role '{}'", username, role));
+    ui::success(&format!("Created user '{username}' with role '{role}'"));
 
     Ok(())
 }
@@ -126,7 +123,7 @@ fn create_user(
 fn list_users(store: &UserStore) -> anyhow::Result<()> {
     let users = store
         .list()
-        .map_err(|e| anyhow::anyhow!("Failed to list users: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Failed to list users: {e}"))?;
 
     if users.is_empty() {
         ui::info("No users configured.");
@@ -159,20 +156,20 @@ fn list_users(store: &UserStore) -> anyhow::Result<()> {
 fn reset_password(store: &UserStore, username: &str) -> anyhow::Result<()> {
     let mut user = store
         .get_by_username(username)
-        .map_err(|e| anyhow::anyhow!("Failed to find user: {}", e))?
-        .ok_or_else(|| anyhow::anyhow!("User not found: {}", username))?;
+        .map_err(|e| anyhow::anyhow!("Failed to find user: {e}"))?
+        .ok_or_else(|| anyhow::anyhow!("User not found: {username}"))?;
 
     let new_password = generate_password(16);
 
     user.set_password(&new_password)
-        .map_err(|e| anyhow::anyhow!("Failed to set password: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Failed to set password: {e}"))?;
 
     store
         .update(&user)
-        .map_err(|e| anyhow::anyhow!("Failed to update user: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Failed to update user: {e}"))?;
 
-    ui::success(&format!("Password reset for user '{}'", username));
-    ui::success(&format!("New password: {}", new_password));
+    ui::success(&format!("Password reset for user '{username}'"));
+    ui::success(&format!("New password: {new_password}"));
 
     Ok(())
 }
@@ -180,17 +177,17 @@ fn reset_password(store: &UserStore, username: &str) -> anyhow::Result<()> {
 fn set_user_active(store: &UserStore, username: &str, active: bool) -> anyhow::Result<()> {
     let mut user = store
         .get_by_username(username)
-        .map_err(|e| anyhow::anyhow!("Failed to find user: {}", e))?
-        .ok_or_else(|| anyhow::anyhow!("User not found: {}", username))?;
+        .map_err(|e| anyhow::anyhow!("Failed to find user: {e}"))?
+        .ok_or_else(|| anyhow::anyhow!("User not found: {username}"))?;
 
     user.active = active;
 
     store
         .update(&user)
-        .map_err(|e| anyhow::anyhow!("Failed to update user: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Failed to update user: {e}"))?;
 
     let status = if active { "enabled" } else { "disabled" };
-    ui::success(&format!("User '{}' {}", username, status));
+    ui::success(&format!("User '{username}' {status}"));
 
     Ok(())
 }
@@ -199,13 +196,13 @@ fn delete_user(store: &UserStore, username: &str) -> anyhow::Result<()> {
     // First find the user to get their ID
     let user = store
         .get_by_username(username)
-        .map_err(|e| anyhow::anyhow!("Failed to find user: {}", e))?
-        .ok_or_else(|| anyhow::anyhow!("User not found: {}", username))?;
+        .map_err(|e| anyhow::anyhow!("Failed to find user: {e}"))?
+        .ok_or_else(|| anyhow::anyhow!("User not found: {username}"))?;
 
     // Check if this is the last admin
     let users = store
         .list()
-        .map_err(|e| anyhow::anyhow!("Failed to list users: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Failed to list users: {e}"))?;
 
     let admin_count = users
         .iter()
@@ -218,9 +215,9 @@ fn delete_user(store: &UserStore, username: &str) -> anyhow::Result<()> {
 
     store
         .delete(&user.id)
-        .map_err(|e| anyhow::anyhow!("Failed to delete user: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Failed to delete user: {e}"))?;
 
-    ui::success(&format!("Deleted user '{}'", username));
+    ui::success(&format!("Deleted user '{username}'"));
 
     Ok(())
 }
