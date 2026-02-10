@@ -1,6 +1,12 @@
 # openclaw-core
 
-Core types, configuration, events, and security primitives for [OpenClaw](https://github.com/openclaw/openclaw-rs).
+> **Core infrastructure for the community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw)**
+
+[![Crates.io](https://img.shields.io/crates/v/openclaw-core.svg)](https://crates.io/crates/openclaw-core)
+[![Documentation](https://docs.rs/openclaw-core/badge.svg)](https://docs.rs/openclaw-core)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+
+Part of [openclaw-rs](https://github.com/openclaw/openclaw-rs), a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw). This crate provides core types, configuration, events, and security primitives.
 
 ## Features
 

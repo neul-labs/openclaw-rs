@@ -5,6 +5,12 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
+repository.workspace = true
+authors.workspace = true
+homepage = "https://github.com/openclaw/openclaw-rs"
+documentation = "https://docs.rs/openclaw-channels"
+keywords = ["telegram", "discord", "chat", "messaging", "bot"]
+categories = ["network-programming", "asynchronous"]
 
 [dependencies]
 # Async
@@ -32,8 +38,8 @@ reqwest = { workspace = true }
 uuid = { version = "1", features = ["v4"] }
 urlencoding = "2"
 
-# Internal
-openclaw-core = { path = "../openclaw-core" }
+# Internal (version required for crates.io, path for local dev)
+openclaw-core = { version = "0.1.0", path = "../openclaw-core" }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }

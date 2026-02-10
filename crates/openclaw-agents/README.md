@@ -1,6 +1,12 @@
 # openclaw-agents
 
-Agent runtime, sandboxing, and workflow engine for [OpenClaw](https://github.com/openclaw/openclaw-rs).
+> **Agent runtime for the community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw)**
+
+[![Crates.io](https://img.shields.io/crates/v/openclaw-agents.svg)](https://crates.io/crates/openclaw-agents)
+[![Documentation](https://docs.rs/openclaw-agents/badge.svg)](https://docs.rs/openclaw-agents)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+
+Part of [openclaw-rs](https://github.com/openclaw/openclaw-rs), a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw). This crate provides agent runtime, sandboxing, and workflow engine.
 
 ## Features
 

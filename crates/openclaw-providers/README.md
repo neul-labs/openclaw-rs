@@ -1,6 +1,14 @@
 # openclaw-providers
 
-AI provider clients for [OpenClaw](https://github.com/openclaw/openclaw-rs) with full streaming support.
+> **AI provider clients for the community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw)**
+
+[![Crates.io](https://img.shields.io/crates/v/openclaw-providers.svg)](https://crates.io/crates/openclaw-providers)
+[![Documentation](https://docs.rs/openclaw-providers/badge.svg)](https://docs.rs/openclaw-providers)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+
+Part of [openclaw-rs](https://github.com/openclaw/openclaw-rs), a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw). This crate provides AI provider clients with full streaming support.
+
+Provider integrations use official public APIs. "Claude" is a trademark of Anthropic, "GPT" is a trademark of OpenAI.
 
 ## Supported Providers
 

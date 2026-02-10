@@ -1,22 +1,46 @@
 # OpenClaw Rust Core
 
-High-performance Rust core for [OpenClaw](https://github.com/openclaw/openclaw).
+> **A community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw)**
 
-![Rust](https://img.shields.io/badge/rust-1.85%2B-orange)
-![License](https://img.shields.io/badge/license-MIT-blue)
-![Build](https://img.shields.io/badge/build-passing-brightgreen)
+[![Crates.io](https://img.shields.io/crates/v/openclaw-core.svg)](https://crates.io/crates/openclaw-core)
+[![Documentation](https://docs.rs/openclaw-core/badge.svg)](https://docs.rs/openclaw-core)
+[![Rust](https://img.shields.io/badge/rust-1.85%2B-orange.svg)](https://www.rust-lang.org/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 
-## Why Rust?
+---
 
-OpenClaw's TypeScript implementation serves well for rapid iteration, but as the project matures, certain components benefit from Rust's guarantees:
+## What is This?
 
-- **Performance**: Sub-millisecond message routing, minimal memory footprint
-- **Safety**: Memory safety without GC, thread safety via ownership
-- **Reliability**: No null pointer exceptions, exhaustive pattern matching
-- **Portability**: Single binary deployment, cross-compilation to mobile/embedded
-- **Interop**: napi-rs bindings preserve the existing TypeScript ecosystem
+This is an **unofficial, community-driven Rust implementation** of [OpenClaw](https://github.com/openclaw/openclaw), the popular open-source AI agent framework.
 
-## Architecture
+**This is NOT the official OpenClaw project.** For the official project, visit:
+- [OpenClaw (Official)](https://github.com/openclaw/openclaw) - The main TypeScript implementation
+- [OpenClaw Discord](https://discord.gg/openclaw) - Official community chat
+- [OpenClaw Docs](https://docs.openclaw.dev) - Official documentation
+
+### Why This Exists
+
+We love OpenClaw and wanted to explore what a Rust implementation might look like. This project is:
+
+- A **tribute** to the excellent design of the original OpenClaw
+- An **experiment** in bringing Rust's performance and safety guarantees to the AI agent space
+- A **learning project** for understanding AI agent architectures
+- **Fully compatible** with OpenClaw's config format, skills, and plugin ecosystem
+
+### Why Rust?
+
+| Benefit | Impact |
+|---------|--------|
+| **Performance** | Sub-millisecond message routing, minimal memory footprint |
+| **Safety** | Memory safety without GC, thread safety via ownership |
+| **Reliability** | No null pointer exceptions, exhaustive pattern matching |
+| **Portability** | Single binary deployment, cross-compilation to mobile/embedded |
+| **Interop** | napi-rs bindings for Node.js compatibility |
+
+---
+
+## Project Structure
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
@@ -55,45 +79,30 @@ OpenClaw's TypeScript implementation serves well for rapid iteration, but as the
 
 | Crate | Status | Description |
 |-------|--------|-------------|
-| `openclaw-core` | ✅ Complete | Types, config, events, secrets, auth, validation |
-| `openclaw-ipc` | ✅ Complete | IPC message types, nng transport |
-| `openclaw-providers` | ✅ Complete | Anthropic, OpenAI providers with streaming |
-| `openclaw-agents` | ✅ Complete | Runtime, sandbox, workflow, tools |
-| `openclaw-channels` | ⚠️ Partial | Channel traits, routing, allowlist |
-| `openclaw-gateway` | ✅ Complete | HTTP/WS server, JSON-RPC, embedded UI |
-| `openclaw-plugins` | ⚠️ Partial | Plugin API, FFI bridge (wasmtime) |
-| `openclaw-cli` | ✅ Complete | CLI commands (onboard, gateway, status, config) |
-| `openclaw-node` | ✅ Complete | napi-rs bindings for Node.js (providers, auth, tools) |
-| `openclaw-ui` | ✅ Complete | Vue 3 web dashboard (embedded in gateway) |
+| [`openclaw-core`](crates/openclaw-core) | ✅ Complete | Types, config, events, secrets, auth, validation |
+| [`openclaw-ipc`](crates/openclaw-ipc) | ✅ Complete | IPC message types, nng transport |
+| [`openclaw-providers`](crates/openclaw-providers) | ✅ Complete | Anthropic, OpenAI providers with streaming |
+| [`openclaw-agents`](crates/openclaw-agents) | ✅ Complete | Runtime, sandbox, workflow, tools |
+| [`openclaw-channels`](crates/openclaw-channels) | ⚠️ Partial | Channel traits, routing, allowlist |
+| [`openclaw-gateway`](crates/openclaw-gateway) | ✅ Complete | HTTP/WS server, JSON-RPC, embedded UI |
+| [`openclaw-plugins`](crates/openclaw-plugins) | ⚠️ Partial | Plugin API, FFI bridge (wasmtime) |
+| [`openclaw-cli`](crates/openclaw-cli) | ✅ Complete | CLI commands (onboard, gateway, status, config) |
+| [`openclaw-node`](bridge/openclaw-node) | ✅ Complete | napi-rs bindings for Node.js |
+| [`openclaw-ui`](crates/openclaw-ui) | ✅ Complete | Vue 3 web dashboard (embedded in gateway) |
 
-## Installation
+---
 
-### Quick Install (Recommended)
+## Quick Start
 
-```bash
-# One-liner install script
-curl -fsSL https://raw.githubusercontent.com/openclaw/openclaw-rs/main/install.sh | bash
-
-# Or with options
-./install.sh --method source    # Force source build
-./install.sh --prefix ~/.local  # Custom install prefix
-```
-
-The install script tries these methods in order:
-1. Pre-built binaries from GitHub Releases
-2. `cargo install` from crates.io
-3. Build from source (if in repo directory)
-4. Clone and build from source
-
-### From Source
+### Installation
 
 ```bash
-# Clone and build
+# From crates.io
+cargo install openclaw-cli
+
+# From source
 git clone https://github.com/openclaw/openclaw-rs
 cd openclaw-rs
-cargo build --release
-
-# Install the CLI
 cargo install --path crates/openclaw-cli
 ```
 
@@ -106,106 +115,83 @@ cargo install --path crates/openclaw-cli
   - macOS: Built-in `sandbox-exec`
   - Windows: No additional deps (uses Job Objects)
 
-## Getting Started
-
-After installation, run the onboarding wizard:
+### First Run
 
 ```bash
 # Interactive setup wizard
 openclaw onboard
 
-# Or for automation:
-openclaw onboard --non-interactive --accept-risk --flow quickstart --auth-choice anthropic --api-key "sk-..."
+# Start the gateway server
+openclaw gateway run
+
+# Open the web dashboard
+openclaw dashboard
 ```
 
-The wizard will:
-1. Accept security acknowledgement
-2. Configure gateway (port, bind address)
-3. Set up AI provider authentication
-4. Create workspace directory
-5. Optionally install as system service
+---
 
-### Post-Setup Commands
+## Usage Examples
+
+### CLI
 
 ```bash
-# Check status
+# Check system status
 openclaw status
-
-# Start gateway
-openclaw gateway run
 
 # Run health checks
 openclaw doctor
 
-# Install shell completion
-openclaw completion --install
+# Configure providers
+openclaw configure --section auth
+
+# Manage agents
+openclaw agents list
 ```
 
-## CLI Commands
+### Node.js (via openclaw-node)
 
-| Command | Description |
-|---------|-------------|
-| `openclaw onboard` | Interactive setup wizard |
-| `openclaw configure` | Update configuration interactively |
-| `openclaw doctor` | Health checks with auto-repair |
-| `openclaw status` | Show gateway/channels status |
-| `openclaw gateway run` | Start the gateway server |
-| `openclaw config get/set` | Configuration management |
-| `openclaw completion` | Shell completion setup |
-| `openclaw daemon` | System service management |
-| `openclaw agents` | Manage isolated agents |
-| `openclaw models` | Model discovery and configuration |
-| `openclaw channels` | Manage chat channel accounts |
-| `openclaw plugins` | Manage OpenClaw plugins |
-| `openclaw skills` | List and inspect available skills |
-| `openclaw browser` | Manage dedicated browser instance |
-| `openclaw reset` | Reset configuration/state |
+```javascript
+const { AnthropicProvider, NodeEventStore } = require('openclaw-node');
 
-## Web Dashboard
+// Create provider
+const provider = new AnthropicProvider(process.env.ANTHROPIC_API_KEY);
 
-The gateway includes an embedded Vue 3 web dashboard accessible at `http://localhost:18789/` when running.
+// Create completion
+const response = await provider.complete({
+  model: 'claude-3-5-sonnet-20241022',
+  messages: [{ role: 'user', content: 'Hello!' }],
+  maxTokens: 1024,
+});
 
-Features:
-- **Dashboard**: System overview and quick stats
-- **Sessions**: View and manage conversation sessions
-- **Chat**: Interactive chat interface with agents
-- **Agents**: Configure and manage AI agents
-- **Channels**: Monitor connected chat channels
-- **Tools**: Browse and execute available tools
-
-```bash
-# Start gateway with web UI
-openclaw gateway run
-
-# Open dashboard in browser
-openclaw dashboard
+console.log(response.content);
 ```
 
-## Building
+### Rust
 
-```bash
-# Build all crates
-cargo build --workspace
+```rust
+use openclaw_providers::{AnthropicProvider, Provider};
+use openclaw_core::secrets::ApiKey;
 
-# Run tests
-cargo test --workspace
-
-# Run with release optimizations
-cargo build --workspace --release
-
-# Build the web UI (requires Node.js 20+)
-cd crates/openclaw-ui
-npm install && npm run build
-
-# Generate documentation
-cargo doc --workspace --open
-
-# Run the CLI (dev)
-cargo run -p openclaw-cli -- --help
-
-# Run the gateway (dev)
-cargo run -p openclaw-cli -- gateway run --dev
+let provider = AnthropicProvider::new(ApiKey::new("sk-...".into()));
+let response = provider.complete(request).await?;
 ```
+
+---
+
+## Compatibility with OpenClaw
+
+This implementation aims for compatibility with the official OpenClaw project:
+
+| Feature | Compatibility |
+|---------|---------------|
+| **Config Format** | ✅ Same `~/.openclaw/openclaw.json` (JSON5) |
+| **Skills** | ✅ Markdown + YAML frontmatter format |
+| **Plugins** | ✅ TypeScript plugins via IPC bridge |
+| **Session Storage** | ✅ Compatible event format |
+
+See [docs/INTEROP.md](docs/INTEROP.md) for the full compatibility guide.
+
+---
 
 ## Design Principles
 
@@ -217,32 +203,59 @@ cargo run -p openclaw-cli -- gateway run --dev
 | **Zero Trust** | All external input validated at boundaries |
 | **Fail Secure** | Errors default to denial, not exposure |
 
-## Relationship to OpenClaw (TypeScript)
-
-This Rust implementation is designed to **complement**, not replace, the TypeScript ecosystem:
-
-- **Skills**: Continue using Markdown + YAML frontmatter format
-- **Plugins**: TypeScript plugins communicate via IPC bridge
-- **Config**: Same `~/.openclaw/openclaw.json` format (JSON5)
-- **Migration**: Gradual, component-by-component replacement
-
-See [docs/INTEROP.md](docs/INTEROP.md) for the full interoperability strategy.
+---
 
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md) - System design and patterns
 - [Security](docs/SECURITY.md) - Threat model and security measures
-- [Roadmap](docs/ROADMAP.md) - Implementation progress and plans
-- [Interop](docs/INTEROP.md) - TypeScript compatibility guide
 - [Crates](docs/CRATES.md) - Detailed crate documentation
+- [Interop](docs/INTEROP.md) - Compatibility with official OpenClaw
+- [Roadmap](docs/ROADMAP.md) - Implementation progress
 - [Contributing](docs/CONTRIBUTING.md) - Development guide
+
+---
+
+## Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
+
+---
+
+## Acknowledgments
+
+This project is a tribute to the [OpenClaw](https://github.com/openclaw/openclaw) team and community. We're grateful for:
+
+- The excellent design and architecture of the original project
+- The vibrant community on Discord
+- The open-source spirit that makes projects like this possible
+
+We also build on:
+- The Rust ecosystem for its emphasis on safety and performance
+- Event sourcing patterns from distributed systems research
+- Sandbox techniques from container and browser security
+
+---
 
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## See Also
+---
 
-- [OpenClaw (TypeScript)](https://github.com/openclaw/openclaw) - Main project
-- [grite](https://github.com/anthropics/grite) - Event sourcing patterns
-- [m9m](https://github.com/anthropics/m9m) - Workflow node patterns
+## Legal Notice
+
+- "Claude" and "Anthropic" are trademarks of Anthropic, PBC
+- "GPT" and "OpenAI" are trademarks of OpenAI, Inc
+- "OpenClaw" is the name of the original open-source project we're inspired by
+- All trademarks belong to their respective owners
+
+This is an independent community implementation. Provider integrations use official public APIs.
+
+---
+
+## Links
+
+- [OpenClaw (Official)](https://github.com/openclaw/openclaw) - The original TypeScript project
+- [OpenClaw Discord](https://discord.gg/openclaw) - Official community chat
+- [OpenClaw Docs](https://docs.openclaw.dev) - Official documentation

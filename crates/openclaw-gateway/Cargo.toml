@@ -5,6 +5,12 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
+repository.workspace = true
+authors.workspace = true
+homepage = "https://github.com/openclaw/openclaw-rs"
+documentation = "https://docs.rs/openclaw-gateway"
+keywords = ["gateway", "http", "websocket", "json-rpc", "server"]
+categories = ["web-programming::http-server", "asynchronous"]
 
 [features]
 default = ["ui"]
@@ -51,11 +57,11 @@ dirs = "5"
 rust-embed = { version = "8", features = ["compression"], optional = true }
 mime_guess = { version = "2", optional = true }
 
-# Internal
-openclaw-core = { path = "../openclaw-core" }
-openclaw-agents = { path = "../openclaw-agents" }
-openclaw-channels = { path = "../openclaw-channels" }
-openclaw-providers = { path = "../openclaw-providers" }
+# Internal (version required for crates.io, path for local dev)
+openclaw-core = { version = "0.1.0", path = "../openclaw-core" }
+openclaw-agents = { version = "0.1.0", path = "../openclaw-agents" }
+openclaw-channels = { version = "0.1.0", path = "../openclaw-channels" }
+openclaw-providers = { version = "0.1.0", path = "../openclaw-providers" }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }

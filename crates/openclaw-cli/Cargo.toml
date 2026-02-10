@@ -5,6 +5,12 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
+repository.workspace = true
+authors.workspace = true
+homepage = "https://github.com/openclaw/openclaw-rs"
+documentation = "https://docs.rs/openclaw-cli"
+keywords = ["cli", "ai", "agents", "terminal", "assistant"]
+categories = ["command-line-utilities"]
 
 [[bin]]
 name = "openclaw"
@@ -47,10 +53,10 @@ anyhow = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 
-# Internal
-openclaw-core = { path = "../openclaw-core" }
-openclaw-gateway = { path = "../openclaw-gateway" }
-openclaw-agents = { path = "../openclaw-agents" }
+# Internal (version required for crates.io, path for local dev)
+openclaw-core = { version = "0.1.0", path = "../openclaw-core" }
+openclaw-gateway = { version = "0.1.0", path = "../openclaw-gateway" }
+openclaw-agents = { version = "0.1.0", path = "../openclaw-agents" }
 
 [lints]
 workspace = true

@@ -1,6 +1,12 @@
 # openclaw-node
 
-napi-rs bindings for OpenClaw Rust Core, exposing high-performance AI provider clients, encrypted credential storage, and event sourcing to Node.js.
+> **Node.js bindings for the community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw)**
+
+[![Crates.io](https://img.shields.io/crates/v/openclaw-node.svg)](https://crates.io/crates/openclaw-node)
+[![npm](https://img.shields.io/npm/v/openclaw-node.svg)](https://www.npmjs.com/package/openclaw-node)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+
+Part of [openclaw-rs](https://github.com/openclaw/openclaw-rs), a community Rust implementation of [OpenClaw](https://github.com/openclaw/openclaw). This package provides napi-rs bindings exposing the Rust core to Node.js applications.
 
 ## Features
 

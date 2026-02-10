@@ -5,6 +5,12 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
+repository.workspace = true
+authors.workspace = true
+homepage = "https://github.com/openclaw/openclaw-rs"
+documentation = "https://docs.rs/openclaw-plugins"
+keywords = ["plugins", "wasm", "ffi", "extensibility"]
+categories = ["development-tools", "wasm"]
 
 [dependencies]
 # Async
@@ -27,9 +33,9 @@ wasmtime = "29"
 # Native plugin loading
 libloading = "0.8"
 
-# Internal
-openclaw-core = { path = "../openclaw-core" }
-openclaw-ipc = { path = "../openclaw-ipc" }
+# Internal (version required for crates.io, path for local dev)
+openclaw-core = { version = "0.1.0", path = "../openclaw-core" }
+openclaw-ipc = { version = "0.1.0", path = "../openclaw-ipc" }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }
