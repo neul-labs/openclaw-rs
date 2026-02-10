@@ -191,7 +191,12 @@ pub enum SessionMessage {
     /// Message to the peer.
     Outbound(String),
     /// Tool call.
-    Tool { name: String, result: String },
+    Tool {
+        /// Name of the tool that was called.
+        name: String,
+        /// Result returned by the tool.
+        result: String,
+    },
 }
 
 /// CRDT projection for session state.
