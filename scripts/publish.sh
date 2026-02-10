@@ -23,6 +23,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Parse arguments
@@ -59,6 +60,39 @@ CRATES=(
     "crates/openclaw-cli"        # Depends on: core, gateway, agents
     "bridge/openclaw-node"       # Depends on: core, providers, agents
 )
+
+# Function to get local crate version from Cargo.toml
+get_local_version() {
+    local crate_path=$1
+    local cargo_toml="$PROJECT_ROOT/$crate_path/Cargo.toml"
+
+    # Check for version.workspace = true (uses workspace version)
+    if grep -q 'version.workspace = true' "$cargo_toml" 2>/dev/null; then
+        # Get version from workspace Cargo.toml
+        grep -E '^\s*version\s*=' "$PROJECT_ROOT/Cargo.toml" | head -1 | sed 's/.*"\(.*\)".*/\1/'
+    else
+        # Get version directly from crate Cargo.toml
+        grep -E '^\s*version\s*=' "$cargo_toml" | head -1 | sed 's/.*"\(.*\)".*/\1/'
+    fi
+}
+
+# Function to check if a crate version is already published on crates.io
+is_version_published() {
+    local crate_name=$1
+    local version=$2
+
+    # Query crates.io API (User-Agent required by crates.io policy)
+    local response
+    response=$(curl -s -H "User-Agent: openclaw-publish-script/1.0" \
+        "https://crates.io/api/v1/crates/$crate_name/$version" 2>/dev/null || echo "error")
+
+    # Check if the version exists (API returns version info, not an error)
+    if echo "$response" | grep -q '"num"'; then
+        return 0  # Version exists
+    else
+        return 1  # Version doesn't exist
+    fi
+}
 
 # Get script directory and project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -131,14 +165,25 @@ echo ""
 # Publish each crate
 TOTAL=${#CRATES[@]}
 CURRENT=0
+PUBLISHED=0
+SKIPPED=0
 
 for crate_path in "${CRATES[@]}"; do
     CURRENT=$((CURRENT + 1))
     CRATE_NAME=$(basename "$crate_path")
+    LOCAL_VERSION=$(get_local_version "$crate_path")
 
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${BLUE}[$CURRENT/$TOTAL] Publishing: ${CRATE_NAME}${NC}"
+    echo -e "${BLUE}[$CURRENT/$TOTAL] ${CRATE_NAME} v${LOCAL_VERSION}${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+    # Check if this version is already published
+    if is_version_published "$CRATE_NAME" "$LOCAL_VERSION"; then
+        echo -e "${CYAN}⏭  Skipping: v${LOCAL_VERSION} already published on crates.io${NC}"
+        SKIPPED=$((SKIPPED + 1))
+        echo ""
+        continue
+    fi
 
     # Special handling for openclaw-gateway (disable UI feature for crates.io)
     EXTRA_FLAGS=""
@@ -165,6 +210,7 @@ for crate_path in "${CRATES[@]}"; do
         }
     fi
 
+    PUBLISHED=$((PUBLISHED + 1))
     echo -e "${GREEN}✓ $CRATE_NAME done${NC}"
 
     # Sleep between publishes (except for last one)
@@ -187,3 +233,5 @@ else
     echo -e "${GREEN}║           All crates published successfully!                 ║${NC}"
 fi
 echo -e "${GREEN}╚════════════════════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${BLUE}Summary: ${PUBLISHED} published, ${SKIPPED} skipped (already on crates.io)${NC}"

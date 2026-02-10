@@ -53,6 +53,7 @@ pub fn confirm(prompt: &str) -> Result<bool, dialoguer::Error> {
 }
 
 /// Prompt for confirmation with a default of true.
+#[allow(dead_code)]
 pub fn confirm_default_yes(prompt: &str) -> Result<bool, dialoguer::Error> {
     Confirm::with_theme(&theme())
         .with_prompt(prompt)
@@ -61,6 +62,7 @@ pub fn confirm_default_yes(prompt: &str) -> Result<bool, dialoguer::Error> {
 }
 
 /// Prompt for selection from a list of options.
+#[allow(dead_code)]
 pub fn select<T: ToString>(prompt: &str, options: &[T]) -> Result<usize, dialoguer::Error> {
     Select::with_theme(&theme())
         .with_prompt(prompt)
