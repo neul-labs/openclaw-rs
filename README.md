@@ -4,6 +4,7 @@ High-performance Rust core for [OpenClaw](https://github.com/openclaw/openclaw).
 
 ![Rust](https://img.shields.io/badge/rust-1.85%2B-orange)
 ![License](https://img.shields.io/badge/license-MIT-blue)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
 
 ## Why Rust?
 
@@ -30,6 +31,10 @@ OpenClaw's TypeScript implementation serves well for rapid iteration, but as the
 │                       ┌──────────────────────────┐                              │
 │                       │     openclaw-gateway     │                              │
 │                       │   (axum HTTP/WS server)  │                              │
+│                       │  ┌──────────────────┐    │                              │
+│                       │  │   openclaw-ui    │    │                              │
+│                       │  │ (Vue 3 Dashboard)│    │                              │
+│                       │  └──────────────────┘    │                              │
 │                       └────────────┬─────────────┘                              │
 │            ┌───────────────────────┼───────────────────────┐                    │
 │            │                       │                       │                    │
@@ -52,15 +57,33 @@ OpenClaw's TypeScript implementation serves well for rapid iteration, but as the
 |-------|--------|-------------|
 | `openclaw-core` | ✅ Complete | Types, config, events, secrets, auth, validation |
 | `openclaw-ipc` | ✅ Complete | IPC message types, nng transport |
-| `openclaw-providers` | ⚠️ Partial | Provider traits, API client stubs |
+| `openclaw-providers` | ✅ Complete | Anthropic, OpenAI providers with streaming |
 | `openclaw-agents` | ✅ Complete | Runtime, sandbox, workflow, tools |
 | `openclaw-channels` | ⚠️ Partial | Channel traits, routing, allowlist |
-| `openclaw-gateway` | ⚠️ Partial | HTTP/WS server, JSON-RPC |
-| `openclaw-plugins` | ⚠️ Partial | Plugin API, FFI bridge |
-| `openclaw-cli` | ⚠️ Partial | CLI commands |
-| `openclaw-node` | 🔜 Planned | napi-rs bindings for Node.js |
+| `openclaw-gateway` | ✅ Complete | HTTP/WS server, JSON-RPC, embedded UI |
+| `openclaw-plugins` | ⚠️ Partial | Plugin API, FFI bridge (wasmtime) |
+| `openclaw-cli` | ✅ Complete | CLI commands (onboard, gateway, status, config) |
+| `openclaw-node` | ✅ Complete | napi-rs bindings for Node.js (providers, auth, tools) |
+| `openclaw-ui` | ✅ Complete | Vue 3 web dashboard (embedded in gateway) |
 
 ## Installation
+
+### Quick Install (Recommended)
+
+```bash
+# One-liner install script
+curl -fsSL https://raw.githubusercontent.com/openclaw/openclaw-rs/main/install.sh | bash
+
+# Or with options
+./install.sh --method source    # Force source build
+./install.sh --prefix ~/.local  # Custom install prefix
+```
+
+The install script tries these methods in order:
+1. Pre-built binaries from GitHub Releases
+2. `cargo install` from crates.io
+3. Build from source (if in repo directory)
+4. Clone and build from source
 
 ### From Source
 
@@ -77,6 +100,7 @@ cargo install --path crates/openclaw-cli
 ### Requirements
 
 - Rust 1.85+ (2024 edition)
+- Node.js 20+ (for building the embedded UI)
 - System dependencies for sandboxing:
   - Linux: `bubblewrap` (`bwrap`)
   - macOS: Built-in `sandbox-exec`
@@ -129,7 +153,33 @@ openclaw completion --install
 | `openclaw config get/set` | Configuration management |
 | `openclaw completion` | Shell completion setup |
 | `openclaw daemon` | System service management |
+| `openclaw agents` | Manage isolated agents |
+| `openclaw models` | Model discovery and configuration |
+| `openclaw channels` | Manage chat channel accounts |
+| `openclaw plugins` | Manage OpenClaw plugins |
+| `openclaw skills` | List and inspect available skills |
+| `openclaw browser` | Manage dedicated browser instance |
 | `openclaw reset` | Reset configuration/state |
+
+## Web Dashboard
+
+The gateway includes an embedded Vue 3 web dashboard accessible at `http://localhost:18789/` when running.
+
+Features:
+- **Dashboard**: System overview and quick stats
+- **Sessions**: View and manage conversation sessions
+- **Chat**: Interactive chat interface with agents
+- **Agents**: Configure and manage AI agents
+- **Channels**: Monitor connected chat channels
+- **Tools**: Browse and execute available tools
+
+```bash
+# Start gateway with web UI
+openclaw gateway run
+
+# Open dashboard in browser
+openclaw dashboard
+```
 
 ## Building
 
@@ -143,11 +193,18 @@ cargo test --workspace
 # Run with release optimizations
 cargo build --workspace --release
 
+# Build the web UI (requires Node.js 20+)
+cd crates/openclaw-ui
+npm install && npm run build
+
 # Generate documentation
 cargo doc --workspace --open
 
 # Run the CLI (dev)
 cargo run -p openclaw-cli -- --help
+
+# Run the gateway (dev)
+cargo run -p openclaw-cli -- gateway run --dev
 ```
 
 ## Design Principles

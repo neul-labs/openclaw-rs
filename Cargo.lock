@@ -2324,13 +2324,19 @@ dependencies = [
 name = "openclaw-node"
 version = "0.1.0"
 dependencies = [
+ "futures",
+ "hex",
  "napi",
  "napi-build",
  "napi-derive",
+ "once_cell",
+ "openclaw-agents",
  "openclaw-core",
+ "openclaw-providers",
  "serde",
  "serde_json",
  "thiserror 2.0.18",
+ "tokio",
 ]
 
 [[package]]

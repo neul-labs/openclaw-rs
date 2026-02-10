@@ -22,7 +22,9 @@ openclaw-plugins
     └── openclaw-ipc
 
 openclaw-node (napi bindings)
-    └── openclaw-core
+    ├── openclaw-core
+    ├── openclaw-providers
+    └── openclaw-agents
 ```
 
 ---
@@ -530,25 +532,159 @@ openclaw daemon start
 
 napi-rs bindings exposing Rust core functionality to Node.js.
 
-### Exports
+### Modules
+
+| Module | Description |
+|--------|-------------|
+| `config` | Configuration loading and validation |
+| `providers` | Anthropic Claude and OpenAI GPT clients |
+| `auth` | Safe API key handling and encrypted storage |
+| `agents` | Tool registry and definitions |
+| `events` | Append-only event store with projections |
+| `validation` | Input validation utilities |
+
+### AI Providers
 
 ```typescript
-// Configuration
+// Anthropic Claude
+export class AnthropicProvider {
+  constructor(apiKey: string);
+  static withBaseUrl(apiKey: string, baseUrl: string): AnthropicProvider;
+  get name(): string;
+  listModels(): Promise<string[]>;
+  complete(request: JsCompletionRequest): Promise<JsCompletionResponse>;
+  completeStream(request: JsCompletionRequest, callback: StreamCallback): void;
+}
+
+// OpenAI GPT
+export class OpenAIProvider {
+  constructor(apiKey: string);
+  static withBaseUrl(apiKey: string, baseUrl: string): OpenAIProvider;
+  static withOrg(apiKey: string, orgId: string): OpenAIProvider;
+  get name(): string;
+  listModels(): Promise<string[]>;
+  complete(request: JsCompletionRequest): Promise<JsCompletionResponse>;
+  completeStream(request: JsCompletionRequest, callback: StreamCallback): void;
+}
+```
+
+### Provider Types
+
+```typescript
+interface JsMessage {
+  role: 'user' | 'assistant' | 'system' | 'tool';
+  content: string;
+  toolUseId?: string;
+  toolName?: string;
+}
+
+interface JsCompletionRequest {
+  model: string;
+  messages: JsMessage[];
+  system?: string;
+  maxTokens: number;
+  temperature?: number;
+  stop?: string[];
+  tools?: JsTool[];
+}
+
+interface JsCompletionResponse {
+  id: string;
+  model: string;
+  content: string;
+  stopReason?: 'end_turn' | 'max_tokens' | 'stop_sequence' | 'tool_use';
+  toolCalls?: JsToolCall[];
+  usage: JsTokenUsage;
+}
+
+interface JsStreamChunk {
+  chunkType: string;
+  delta?: string;
+  index?: number;
+  stopReason?: string;
+}
+
+interface JsTokenUsage {
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens?: number;
+  cacheWriteTokens?: number;
+}
+```
+
+### Authentication
+
+```typescript
+// Safe API key wrapper (prevents accidental logging)
+export class NodeApiKey {
+  constructor(key: string);
+  toString(): string;  // Returns "[REDACTED]"
+  exposeSecretForApiCall(): string;  // Get actual value for API calls
+  isEmpty(): boolean;
+  length(): number;
+  startsWith(prefix: string): boolean;
+}
+
+// Encrypted credential storage (AES-256-GCM)
+export class CredentialStore {
+  constructor(encryptionKeyHex: string, storePath: string);
+  store(name: string, apiKey: NodeApiKey): Promise<void>;
+  load(name: string): Promise<NodeApiKey>;
+  delete(name: string): Promise<void>;
+  list(): Promise<string[]>;
+}
+```
+
+### Tools
+
+```typescript
+export class ToolRegistry {
+  constructor();
+  register(tool: JsToolDefinition): void;
+  list(): string[];
+  execute(name: string, params: object): Promise<JsToolResult>;
+}
+
+interface JsToolDefinition {
+  name: string;
+  description: string;
+  inputSchema: object;
+}
+
+interface JsToolResult {
+  success: boolean;
+  result?: any;
+  error?: string;
+}
+```
+
+### Configuration
+
+```typescript
 export function loadConfig(path: string): string;
 export function loadDefaultConfig(): string;
 export function validateConfig(path: string): string;
+```
 
-// Session Key
+### Session Key
+
+```typescript
 export function buildSessionKey(
   agentId: string, channel: string, accountId: string,
   peerType: string, peerId: string
 ): string;
+```
 
-// Validation
+### Validation
+
+```typescript
 export function validateMessage(content: string, maxLength?: number): string;
 export function validatePath(path: string): string;
+```
 
-// Event Store
+### Event Store
+
+```typescript
 export class NodeEventStore {
   constructor(path: string);
   appendEvent(sessionKey: string, agentId: string, eventType: string, data: string): string;
@@ -564,6 +700,37 @@ export class NodeEventStore {
 - `session_started` - Session opened (channel, peer_id)
 - `message_received` - Incoming message (content)
 - `message_sent` - Outgoing message (content, message_id)
-- `agent_response` - Agent reply (content, model)
+- `agent_response` - Agent reply (content, model, tokens)
 - `session_ended` - Session closed (reason)
 - `state_changed` - State mutation (key, value)
+- `tool_called` - Tool invocation (tool_name, params)
+- `tool_result` - Tool result (tool_name, result, success)
+
+### Usage Example
+
+```javascript
+const {
+  AnthropicProvider,
+  NodeApiKey,
+  CredentialStore,
+  NodeEventStore,
+} = require('openclaw-node');
+
+// Create provider
+const provider = new AnthropicProvider(process.env.ANTHROPIC_API_KEY);
+
+// Create completion
+const response = await provider.complete({
+  model: 'claude-3-5-sonnet-20241022',
+  messages: [{ role: 'user', content: 'Hello!' }],
+  maxTokens: 1024,
+});
+
+console.log(response.content);
+
+// Streaming
+provider.completeStream(request, (err, chunk) => {
+  if (err) console.error(err);
+  else if (chunk.delta) process.stdout.write(chunk.delta);
+});
+```

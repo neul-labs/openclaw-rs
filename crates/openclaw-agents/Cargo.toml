@@ -5,6 +5,13 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
+repository.workspace = true
+authors.workspace = true
+homepage = "https://github.com/openclaw/openclaw-rs"
+documentation = "https://docs.rs/openclaw-agents"
+readme = "README.md"
+keywords = ["ai", "agents", "workflow", "sandbox", "tools"]
+categories = ["development-tools", "asynchronous"]
 
 [dependencies]
 # Async
@@ -28,9 +35,9 @@ chrono = { workspace = true }
 # Temp files for sandbox
 tempfile = { workspace = true }
 
-# Internal
-openclaw-core = { path = "../openclaw-core" }
-openclaw-providers = { path = "../openclaw-providers" }
+# Internal (version required for crates.io, path for local dev)
+openclaw-core = { version = "0.1.0", path = "../openclaw-core" }
+openclaw-providers = { version = "0.1.0", path = "../openclaw-providers" }
 
 # Windows Job Objects for sandbox
 [target.'cfg(windows)'.dependencies]

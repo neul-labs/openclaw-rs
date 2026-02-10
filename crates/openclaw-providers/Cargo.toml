@@ -5,6 +5,13 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
+repository.workspace = true
+authors.workspace = true
+homepage = "https://github.com/openclaw/openclaw-rs"
+documentation = "https://docs.rs/openclaw-providers"
+readme = "README.md"
+keywords = ["ai", "anthropic", "openai", "claude", "gpt"]
+categories = ["api-bindings", "asynchronous"]
 
 [dependencies]
 # Async
@@ -25,8 +32,8 @@ thiserror = { workspace = true }
 # Logging
 tracing = { workspace = true }
 
-# Internal
-openclaw-core = { path = "../openclaw-core" }
+# Internal (version required for crates.io, path for local dev)
+openclaw-core = { version = "0.1.0", path = "../openclaw-core" }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }

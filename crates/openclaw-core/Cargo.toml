@@ -5,6 +5,13 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
+repository.workspace = true
+authors.workspace = true
+homepage = "https://github.com/openclaw/openclaw-rs"
+documentation = "https://docs.rs/openclaw-core"
+readme = "README.md"
+keywords = ["openclaw", "ai", "events", "config", "secrets"]
+categories = ["development-tools", "asynchronous"]
 
 [dependencies]
 # Async
