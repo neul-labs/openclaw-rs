@@ -1,22 +1,29 @@
 //! UI static file server with embedded assets.
 //!
 //! Serves the Vue 3 dashboard UI as embedded static files.
-//! Assets are embedded at compile time using rust-embed.
+//! Assets are embedded at compile time using rust-embed when the `ui` feature is enabled.
 
 use axum::{
     Router,
-    extract::Path,
-    http::{StatusCode, header},
+    http::StatusCode,
     response::{IntoResponse, Response},
     routing::get,
 };
-use rust_embed::Embed;
 use std::net::SocketAddr;
+
+#[cfg(feature = "ui")]
+use axum::{extract::Path, http::header};
+
+#[cfg(feature = "ui")]
+use rust_embed::Embed;
 
 /// Embedded UI assets from the Vue build output.
 ///
 /// Assets are embedded from `../openclaw-ui/dist` at compile time.
 /// The `compression` feature compresses assets for smaller binary size.
+///
+/// This is only available when the `ui` feature is enabled.
+#[cfg(feature = "ui")]
 #[derive(Embed)]
 #[folder = "../openclaw-ui/dist"]
 #[prefix = ""]
@@ -60,21 +67,21 @@ impl UiServerConfig {
     }
 }
 
-/// Serve the root index.html.
+// ============================================================================
+// UI feature enabled - serve embedded assets
+// ============================================================================
+
+#[cfg(feature = "ui")]
 async fn serve_index() -> Response {
     serve_file("index.html").await
 }
 
-/// Serve embedded static files with SPA fallback.
+#[cfg(feature = "ui")]
 async fn serve_static(Path(path): Path<String>) -> Response {
     serve_file(&path).await
 }
 
-/// Internal file serving logic.
-///
-/// Tries to serve the requested file from embedded assets.
-/// If the file is not found and doesn't have an extension (not a file),
-/// falls back to serving index.html for SPA routing support.
+#[cfg(feature = "ui")]
 async fn serve_file(path: &str) -> Response {
     // Try to get the file from embedded assets
     if let Some(content) = UiAssets::get(path) {
@@ -128,13 +135,54 @@ async fn serve_file(path: &str) -> Response {
     }
 }
 
+// ============================================================================
+// UI feature disabled - return "not available" message
+// ============================================================================
+
+#[cfg(not(feature = "ui"))]
+async fn serve_ui_not_available() -> Response {
+    (
+        StatusCode::OK,
+        [(axum::http::header::CONTENT_TYPE, "text/html")],
+        r#"<!DOCTYPE html>
+<html>
+<head>
+    <title>OpenClaw UI</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 100px auto; padding: 20px; }
+        h1 { color: #333; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>OpenClaw UI Not Available</h1>
+    <p>The web dashboard UI is not included in this build.</p>
+    <p>To enable the UI, rebuild with the <code>ui</code> feature:</p>
+    <pre><code>cargo build --features ui</code></pre>
+    <p>The API gateway is running and accessible at the configured endpoints.</p>
+</body>
+</html>"#,
+    )
+        .into_response()
+}
+
 /// Create the UI router.
 ///
 /// Sets up routes for serving static files with SPA fallback.
+/// When the `ui` feature is disabled, returns a "not available" message.
+#[cfg(feature = "ui")]
 pub fn create_ui_router() -> Router {
     Router::new()
         .route("/", get(serve_index))
         .route("/{*path}", get(serve_static))
+}
+
+/// Create the UI router (stub when UI feature is disabled).
+#[cfg(not(feature = "ui"))]
+pub fn create_ui_router() -> Router {
+    Router::new()
+        .route("/", get(serve_ui_not_available))
+        .fallback(get(serve_ui_not_available))
 }
 
 /// Run the UI server.
@@ -161,7 +209,14 @@ pub async fn run_ui_server(config: UiServerConfig) -> Result<(), std::io::Error>
         .parse()
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e))?;
 
+    #[cfg(feature = "ui")]
     tracing::info!("UI server listening on http://{}", addr);
+
+    #[cfg(not(feature = "ui"))]
+    tracing::info!(
+        "UI server listening on http://{} (UI feature not enabled)",
+        addr
+    );
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await

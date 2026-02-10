@@ -140,9 +140,16 @@ for crate_path in "${CRATES[@]}"; do
     echo -e "${BLUE}[$CURRENT/$TOTAL] Publishing: ${CRATE_NAME}${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
+    # Special handling for openclaw-gateway (disable UI feature for crates.io)
+    EXTRA_FLAGS=""
+    if [ "$CRATE_NAME" = "openclaw-gateway" ]; then
+        EXTRA_FLAGS="--no-default-features"
+        echo -e "${YELLOW}Note: Publishing without UI feature (UI assets not available on crates.io)${NC}"
+    fi
+
     if $DRY_RUN; then
         echo -e "${YELLOW}[DRY RUN] Would publish: $crate_path${NC}"
-        if ! cargo publish --dry-run --allow-dirty -p "$CRATE_NAME" 2>&1; then
+        if ! cargo publish --dry-run --allow-dirty -p "$CRATE_NAME" $EXTRA_FLAGS 2>&1; then
             if [ $CURRENT -eq 1 ]; then
                 echo -e "${RED}Dry run failed for $CRATE_NAME${NC}"
                 exit 1
@@ -152,7 +159,7 @@ for crate_path in "${CRATES[@]}"; do
         fi
     else
         echo -e "${GREEN}Publishing: $crate_path${NC}"
-        cargo publish -p "$CRATE_NAME" 2>&1 || {
+        cargo publish -p "$CRATE_NAME" $EXTRA_FLAGS 2>&1 || {
             echo -e "${RED}Failed to publish $CRATE_NAME${NC}"
             exit 1
         }

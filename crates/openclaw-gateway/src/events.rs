@@ -83,11 +83,20 @@ pub enum UiEvent {
 #[serde(rename_all = "snake_case")]
 pub enum SessionUpdate {
     /// Session state changed.
-    StateChanged { new_state: String },
+    StateChanged {
+        /// The new state name.
+        new_state: String,
+    },
     /// Message count updated.
-    MessageCount { count: u64 },
+    MessageCount {
+        /// The current message count.
+        count: u64,
+    },
     /// Session ended.
-    Ended { reason: String },
+    Ended {
+        /// The reason for ending.
+        reason: String,
+    },
 }
 
 /// A wrapper for UI events with metadata.

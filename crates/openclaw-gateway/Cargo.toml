@@ -13,7 +13,7 @@ keywords = ["gateway", "http", "websocket", "json-rpc", "server"]
 categories = ["web-programming::http-server", "asynchronous"]
 
 [features]
-default = ["ui"]
+default = []
 ui = ["rust-embed", "mime_guess"]
 
 [dependencies]
