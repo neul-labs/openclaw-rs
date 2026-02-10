@@ -1,0 +1,29 @@
+/* Custom styles for OpenClaw Rust Core documentation */
+
+/* Highlight the community notice */
+.md-typeset .admonition.info {
+  border-left-color: #448aff;
+}
+
+/* Make buttons more prominent */
+.md-button--primary {
+  background-color: #3f51b5;
+}
+
+.md-button--primary:hover {
+  background-color: #303f9f;
+}
+
+/* Footer styling */
+.md-footer-meta {
+  background-color: #1a1a2e;
+}
+
+/* Code block improvements */
+.md-typeset code {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-md-color-scheme="slate"] .md-typeset code {
+  background-color: rgba(255, 255, 255, 0.05);
+}

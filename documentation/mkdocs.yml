@@ -1,0 +1,108 @@
+site_name: OpenClaw Rust Core
+site_description: A community Rust implementation of OpenClaw - the open-source AI agent framework
+site_url: https://openclaw.github.io/openclaw-rs/
+repo_url: https://github.com/openclaw/openclaw-rs
+repo_name: openclaw/openclaw-rs
+
+copyright: |
+  A community implementation inspired by <a href="https://github.com/openclaw/openclaw">OpenClaw</a>.
+  Not affiliated with the official project. All trademarks belong to their respective owners.
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/openclaw/openclaw-rs
+      name: OpenClaw Rust Core (This Project)
+    - icon: fontawesome/brands/github
+      link: https://github.com/openclaw/openclaw
+      name: OpenClaw (Official Project)
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/openclaw
+      name: OpenClaw Discord (Official)
+  generator: false
+
+extra_css:
+  - assets/stylesheets/extra.css
+
+nav:
+  - Home: index.md
+  - About: about.md
+  - Getting Started:
+      - Overview: getting-started/index.md
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quick-start.md
+      - Configuration: getting-started/configuration.md
+  - Guides:
+      - CLI Usage: guides/cli.md
+      - AI Providers: guides/providers.md
+      - Agent Runtime: guides/agents.md
+      - Node.js Bindings: guides/nodejs.md
+      - Web Dashboard: guides/web-dashboard.md
+  - Architecture:
+      - Overview: architecture/index.md
+      - Crate Structure: architecture/crates.md
+      - Design Principles: architecture/design.md
+      - Security Model: architecture/security.md
+  - API Reference:
+      - openclaw-core: reference/core.md
+      - openclaw-providers: reference/providers.md
+      - openclaw-agents: reference/agents.md
+      - openclaw-node: reference/node.md
+      - CLI Commands: reference/cli-commands.md
+  - Compatibility:
+      - OpenClaw Compatibility: compatibility/index.md
+      - Configuration: compatibility/config.md
+      - Skills System: compatibility/skills.md
+      - Plugins: compatibility/plugins.md
+      - Migration: compatibility/migration.md
+  - Development:
+      - Contributing: development/contributing.md
+      - Dev Setup: development/setup.md
+      - Roadmap: development/roadmap.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
